@@ -1,0 +1,252 @@
+---
+/**
+ * Tier 2 CTA — the micro-form.
+ *
+ * Everywhere else on the site uses a direct deep link, because friction costs
+ * conversions. Here, on a page someone reached deliberately, we trade a little
+ * friction for an actual contact record: a deep-link click tells us WHAT was
+ * clicked but never WHO clicked it. This form is the only place we learn a name.
+ */
+import Base from '../layouts/Base.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { SITE, WA_NUMBER, IS_PLACEHOLDER_NUMBER } from '../config/site';
+import { generalLink } from '../lib/whatsapp';
+import { PRODUCTS } from '../data/catalog';
+---
+
+<Base title="Contact" description={`Get in touch with ${SITE.brand} on WhatsApp.`}>
+  <section class="section">
+    <div class="shell measure">
+      <span class="eyebrow">Contact</span>
+      <h1 style="margin-top:0.5rem;">Tell us what you’re after.</h1>
+      <p class="lede" style="margin-top:1rem; margin-bottom:2rem;">
+        Fill this in and WhatsApp opens with your message ready to send. Or skip it and message us
+        directly — both reach the same place.
+      </p>
+
+      <form id="enquiry" data-wa-number={WA_NUMBER} novalidate>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input id="name" name="name" type="text" required autocomplete="name" maxlength="80" />
+        </div>
+
+        <div class="field">
+          <label for="piece">Which piece? <span class="optional">optional</span></label>
+          <select id="piece" name="piece">
+            <option value="">Not sure yet / something else</option>
+            {PRODUCTS.map((p) => <option value={p.sku} data-name={p.name}>{p.name}</option>)}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="message">What would you like to know?</label>
+          <textarea id="message" name="message" rows="4" maxlength="600"
+            placeholder="Sizing, a stone, a gift, a deadline…"></textarea>
+        </div>
+
+        <!-- Honeypot: hidden from people, irresistible to naive bots. -->
+        <div class="hp" aria-hidden="true">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button class="btn btn--wide" type="submit" disabled={IS_PLACEHOLDER_NUMBER}>
+          <span data-btn-text
+            >{IS_PLACEHOLDER_NUMBER ? 'WhatsApp number not configured' : 'Continue to WhatsApp'}</span
+          >
+        </button>
+
+        <p class="consent">
+          We’ll use these details only to answer your enquiry. Nothing is shared with anyone else.
+          Ask us and we’ll delete them.
+        </p>
+      </form>
+
+      <div class="alt">
+        <h3 style="margin-bottom:0.7rem;">Rather just message?</h3>
+        <WhatsAppCTA href={generalLink()} label="Open WhatsApp" variant="ghost" />
+      </div>
+
+      <div class="alt">
+        <h3 style="margin-bottom:0.7rem;">Other ways</h3>
+        <p class="meta">
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
+          {SITE.hours} · {SITE.location}
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1.1rem;
+  }
+
+  label {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .optional {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    color: var(--faint);
+  }
+
+  input,
+  select,
+  textarea {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--line-interactive);
+    border-radius: 2px;
+    background: var(--surface-raised);
+    color: var(--ink);
+    width: 100%;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--burgundy);
+    outline-offset: 1px;
+    border-color: var(--burgundy);
+  }
+
+  input[aria-invalid='true'] {
+    border-color: var(--error);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .consent {
+    font-family: var(--sans);
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin-top: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .error {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--error);
+  }
+
+  .alt {
+    margin-top: 2.6rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+  }
+</style>
+
+<script>
+  const form = document.getElementById('enquiry') as HTMLFormElement | null;
+
+  if (form) {
+    const number = form.dataset.waNumber ?? '';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const nameInput = form.querySelector<HTMLInputElement>('#name')!;
+      const name = nameInput.value.trim();
+
+      // Minimal validation — the only field we genuinely need.
+      form.querySelector('.error')?.remove();
+      if (!name) {
+        nameInput.setAttribute('aria-invalid', 'true');
+        const err = document.createElement('p');
+        err.className = 'error';
+        // role="alert" so the message is announced, not just drawn. Injected
+        // markup is silent to a screen reader without it.
+        err.setAttribute('role', 'alert');
+        err.id = 'name-error';
+        err.textContent = 'Please add your name so we know who we’re talking to.';
+        nameInput.insertAdjacentElement('afterend', err);
+        nameInput.setAttribute('aria-describedby', 'name-error');
+        nameInput.focus();
+        return;
+      }
+      nameInput.removeAttribute('aria-invalid');
+      nameInput.removeAttribute('aria-describedby');
+
+      // Silently drop bots rather than telling them they were caught.
+      const honeypot = form.querySelector<HTMLInputElement>('#company')!;
+      if (honeypot.value) return;
+
+      const select = form.querySelector<HTMLSelectElement>('#piece')!;
+      const sku = select.value;
+      const pieceName = select.selectedOptions[0]?.dataset.name ?? '';
+      const message = form.querySelector<HTMLTextAreaElement>('#message')!.value.trim();
+
+      // Pending state: the request below can take up to 1.2s, and a button that
+      // looks identical after being pressed invites a second press.
+      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const submitText = submit.querySelector<HTMLElement>('[data-btn-text]')!;
+      const restore = submitText.textContent;
+      submit.disabled = true;
+      submitText.textContent = 'Opening WhatsApp…';
+
+      // Log first — this is the one place we actually capture a name, so unlike
+      // the deep-link CTAs it is worth a short await. Capped so a slow or dead
+      // endpoint can never strand someone on this page.
+      try {
+        await Promise.race([
+          fetch('/api/lead', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              sku: sku || 'ENQUIRY',
+              label: pieceName || 'General enquiry',
+              page: window.location.pathname,
+              referrer: document.referrer,
+              name,
+              note: message,
+            }),
+          }),
+          new Promise((resolve) => setTimeout(resolve, 1200)),
+        ]);
+      } catch {
+        /* never block the handoff on telemetry */
+      }
+
+      // Restore on bfcache restore — otherwise someone who taps back from
+      // WhatsApp finds a permanently disabled button.
+      window.addEventListener('pageshow', () => {
+        submit.disabled = false;
+        submitText.textContent = restore;
+      });
+
+      const lines = [
+        `Hi Maison Nunu! I’m ${name}.`,
+        pieceName ? `I’d like to know more about the ${pieceName} (ref: ${sku}).` : '',
+        message,
+      ].filter(Boolean);
+
+      // encodeURIComponent, not URLSearchParams — the latter encodes spaces
+      // as "+", which WhatsApp renders literally.
+      window.location.href = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`;
+    });
+  }
+</script>

@@ -1,0 +1,43 @@
+---
+import type { Product } from '../data/catalog';
+import { formatPrice } from '../data/catalog';
+import { productLink } from '../lib/whatsapp';
+import ProductImage from './ProductImage.astro';
+import WhatsAppCTA from './WhatsAppCTA.astro';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const href = `/shop/${product.slug}/`;
+---
+
+<article class="product reveal">
+  <a class="product__frame" href={href} aria-label={product.name}>
+    <ProductImage
+      image={product.image}
+      name={product.name}
+      sku={product.sku}
+      category={product.category}
+    />
+    {product.madeToOrder && <span class="product__tag">Made to order</span>}
+  </a>
+
+  <div class="product__row">
+    <a class="product__name" href={href}>{product.name}</a>
+    <span class="price">{formatPrice(product.price)}</span>
+  </div>
+
+  <p class="product__blurb">{product.blurb}</p>
+
+  <WhatsAppCTA
+    href={productLink(product)}
+    label="Enquire on WhatsApp"
+    sku={product.sku}
+    productName={product.name}
+    variant="ghost"
+    wide
+  />
+
+</article>

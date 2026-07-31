@@ -1,0 +1,105 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductImage from '../../components/ProductImage.astro';
+import WhatsAppCTA from '../../components/WhatsAppCTA.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import MessagePreview from '../../components/MessagePreview.astro';
+import { PRODUCTS, formatPrice, type Product } from '../../data/catalog';
+import { productLink, productMessage } from '../../lib/whatsapp';
+import { SITE } from '../../config/site';
+
+export function getStaticPaths() {
+  return PRODUCTS.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+
+// Three others from the same category, falling back to anything else so the
+// row is never half empty while the catalog is small.
+const sameCategory = PRODUCTS.filter(
+  (p) => p.category === product.category && p.sku !== product.sku
+);
+const filler = PRODUCTS.filter((p) => p.category !== product.category && p.sku !== product.sku);
+const related = [...sameCategory, ...filler].slice(0, 3);
+
+const link = productLink(product);
+---
+
+<Base title={product.name} description={product.blurb}>
+  <div class="shell">
+    <p class="meta" style="padding-top:1.6rem;">
+      <a href="/shop/" style="text-decoration:none; color:var(--muted);">Shop</a>
+      <span aria-hidden="true"> / </span>
+      <span>{product.name}</span>
+    </p>
+
+    <div class="detail">
+      <div class="detail__media">
+        <ProductImage
+          image={product.image}
+          name={product.name}
+          sku={product.sku}
+          category={product.category}
+          eager
+        />
+      </div>
+
+      <div class="detail__body">
+        <span class="eyebrow">{product.material}</span>
+        <h1>{product.name}</h1>
+        <p class="detail__price">{formatPrice(product.price)}</p>
+
+        <p>{product.description}</p>
+
+        <ul class="detail__list">
+          {product.details.map((d) => <li>{d}</li>)}
+          <li>Reference {product.sku}</li>
+        </ul>
+
+        <div class="detail__cta">
+          <MessagePreview
+            label="You’ll send"
+            direction="out"
+            message={productMessage(product)}
+          />
+          <WhatsAppCTA
+            href={link}
+            label="Send this on WhatsApp"
+            sku={product.sku}
+            productName={product.name}
+            wide
+          />
+          <p class="detail__note">
+            You can edit it before sending. We reply {SITE.hours.toLowerCase()}.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <section class="section" aria-labelledby="related-heading">
+      <span class="eyebrow">More pieces</span>
+      <h2 id="related-heading" style="margin-top:0.6rem;">You might also like</h2>
+      <div class="grid">
+        {related.map((p) => <ProductCard product={p} />)}
+      </div>
+    </section>
+  </div>
+
+  <!-- Mobile: keeps the enquiry action reachable without scrolling back up. -->
+  <div class="sticky-cta">
+    <WhatsAppCTA
+      href={link}
+      label={`Enquire — ${formatPrice(product.price)}`}
+      sku={product.sku}
+      productName={product.name}
+      wide
+    />
+  </div>
+</Base>

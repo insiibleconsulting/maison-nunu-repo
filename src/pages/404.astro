@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { generalLink } from '../lib/whatsapp';
+---
+
+<Base title="Not found">
+  <section class="section">
+    <div class="shell measure">
+      <span class="eyebrow">404</span>
+      <h1 style="margin-top:0.5rem;">This piece isn’t here.</h1>
+      <p class="lede" style="margin-top:1rem; margin-bottom:1.6rem;">
+        It may have sold, or the link may be old. The collection is still worth a look.
+      </p>
+      <div style="display:flex; gap:0.7rem; flex-wrap:wrap;">
+        <a class="btn btn--ghost" href="/shop/">Browse the collection</a>
+        <WhatsAppCTA href={generalLink()} label="Ask us about it" />
+      </div>
+    </div>
+  </section>
+</Base>
