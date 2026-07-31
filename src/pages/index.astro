@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import MessagePreview from '../components/MessagePreview.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { SITE } from '../config/site';
+import { featured, CATEGORIES } from '../data/catalog';
+import { generalLink } from '../lib/whatsapp';
+---
+
+<Base>
+  <!--
+    The hero is the thesis. Every other jewellery site opens with a product
+    photograph and a headline over it; this business runs on conversation, so
+    the hero shows a conversation. It explains the entire model at a glance and
+    sets the expectation for what the buttons do.
+  -->
+  <section class="hero">
+    <div class="shell hero__inner">
+      <div class="hero__copy">
+        <span class="eyebrow">{SITE.tagline}</span>
+        <h1>Ask us about the one you like.</h1>
+        <p class="lede">
+          Hand-finished jewellery made in small runs. There’s no checkout here — you message us about
+          a piece, and we help you get the details right before anything is made.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--ghost" href="/shop/">Browse the collection</a>
+          <WhatsAppCTA href={generalLink()} label="Message us" />
+        </div>
+      </div>
+
+      <div class="hero__thread">
+        <div class="hero__thread-head">
+          <span class="hero__avatar" aria-hidden="true">M</span>
+          <div>
+            <div class="hero__thread-name">{SITE.brand}</div>
+            <div class="hero__thread-status">Typically replies within the hour</div>
+          </div>
+        </div>
+
+        <MessagePreview
+          direction="out"
+          message={"Hi Maison Nunu! I’m interested in the Noor Stone Ring.\n(ref: RNG-03)"}
+        />
+        <MessagePreview
+          direction="in"
+          message={'Lovely choice — that one is made to order, so you get to pick the stone. Shall I send photos of what we have?'}
+        />
+        <MessagePreview direction="out" message={'Yes please. Do you have anything more blue?'} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <span class="eyebrow">Selected pieces</span>
+      <h2 style="margin-top:0.6rem;">This season</h2>
+      <div class="grid">
+        {featured().map((product) => <ProductCard product={product} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <span class="eyebrow">By category</span>
+      <h2 style="margin-top:0.6rem;">Find your thing</h2>
+      <div class="cats">
+        {CATEGORIES.map((c) => <a href={`/shop/?c=${c.id}`}>{c.label}</a>)}
+      </div>
+    </div>
+  </section>
+
+  <!--
+    Numbered because this genuinely is a sequence — the order carries
+    information the reader needs. Numbering anything else here would be
+    decoration pretending to be structure.
+  -->
+  <section class="section">
+    <div class="shell">
+      <span class="eyebrow">How it works</span>
+      <h2 style="margin-top:0.6rem;">No checkout, on purpose.</h2>
+      <ol class="steps">
+        <li class="reveal">
+          <h3>Find a piece</h3>
+          <p>Browse the collection. Every piece has its own enquiry button.</p>
+        </li>
+        <li class="reveal">
+          <h3>Send the message</h3>
+          <p>
+            WhatsApp opens with the piece and its reference already written out. You just press send.
+          </p>
+        </li>
+        <li class="reveal">
+          <h3>We sort the details</h3>
+          <p>
+            Sizing, stones, engraving, delivery. Most of what we make needs one question answered
+            first, and a cart can’t ask it.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell measure">
+      <h2 style="margin-bottom:var(--s-3);">Made in small runs.</h2>
+      <p style="margin-bottom:var(--s-4);">
+        We work in batches small enough that we still know where every piece went. If we made it,
+        we’ll help you repair it.
+      </p>
+      <WhatsAppCTA href={generalLink()} label="Start a conversation" />
+    </div>
+  </section>
+</Base>

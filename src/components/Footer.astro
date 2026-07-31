@@ -1,0 +1,36 @@
+---
+import { SITE } from '../config/site';
+import { CATEGORIES } from '../data/catalog';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <div>
+      <h4>{SITE.brand}</h4>
+      <p style="max-width: 30ch;">{SITE.tagline}</p>
+    </div>
+
+    <div>
+      <h4>Shop</h4>
+      <ul>
+        {CATEGORIES.map((c) => <li><a href={`/shop/?c=${c.id}`}>{c.label}</a></li>)}
+      </ul>
+    </div>
+
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="/contact/">Message us</a></li>
+        <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+        <li>{SITE.hours}</li>
+      </ul>
+    </div>
+
+    <div class="site-footer__legal">
+      © {year} {SITE.brand}. All rights reserved. ·
+      <a href="/privacy/">Privacy</a>
+    </div>
+  </div>
+</footer>

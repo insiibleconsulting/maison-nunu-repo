@@ -1,0 +1,36 @@
+---
+/**
+ * THE SIGNATURE ELEMENT.
+ *
+ * Shows the literal text that will land in WhatsApp when the CTA is tapped.
+ * It is honest (this is exactly the message, not a paraphrase), it removes the
+ * "what happens if I press this" hesitation that kills enquiry conversion, and
+ * it comes from this project's own architecture rather than a jewellery
+ * template. Everything else in the design stays quiet so this carries.
+ *
+ * Rendered as static markup — no JS. If scripting is off, the preview and the
+ * link both still work.
+ */
+
+interface Props {
+  message: string;
+  /** Small uppercase caption above the bubble. */
+  label?: string;
+  /** Outgoing bubble (from the customer) vs incoming (from the shop). */
+  direction?: 'out' | 'in';
+}
+
+const { message, label, direction = 'out' } = Astro.props;
+
+// Pull the "(ref: SKU)" tail out so it can be tinted — it is the one part of
+// the message that does work rather than being pleasantry.
+const refMatch = message.match(/\(ref:\s*([^)]+)\)/);
+const body = refMatch ? message.replace(refMatch[0], '').trimEnd() : message;
+const ref = refMatch ? refMatch[1] : null;
+---
+
+<div class={`msg${direction === 'out' ? ' msg--out' : ''}`}>
+  {label && <span class="msg__label">{label}</span>}
+  <span>{body}</span>
+  {ref && <><br /><span class="msg__ref">(ref: {ref})</span></>}
+</div>

@@ -1,0 +1,65 @@
+---
+import { SITE } from '../config/site';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// Self-hosted variable fonts. Deliberately not Google's CDN: that would leak
+// every visitor's IP to a third party and drag the privacy page into
+// territory it doesn't need to cover.
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/archivo';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = SITE.description } = Astro.props;
+const fullTitle = title ? `${title} — ${SITE.brand}` : `${SITE.brand} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Single committed light theme. Declaring it stops the OS dark mode from
+         rendering native controls (the <select> on /contact, scrollbars) dark
+         against a light page. -->
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#eae7e5" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <!--
+      Lead logging. Loaded as a module so it defers automatically and can never
+      delay first paint or the WhatsApp handoff.
+    -->
+    <script>
+      import '../scripts/lead-beacon';
+      import '../scripts/reveal';
+    </script>
+  </body>
+</html>

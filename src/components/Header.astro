@@ -1,0 +1,42 @@
+---
+import { SITE, IS_PLACEHOLDER_NUMBER } from '../config/site';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href) ? 'page' : undefined;
+
+const links = [
+  { href: '/shop/', label: 'Shop' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
+];
+---
+
+{
+  IS_PLACEHOLDER_NUMBER && (
+    <div class="placeholder-banner">
+      <div class="shell">
+        <strong>Placeholder build</strong>
+        <span>
+          No WhatsApp number is configured, so every enquiry button is disabled. Set
+          <code>PUBLIC_WA_NUMBER</code> in Cloudflare Pages to activate them.
+        </span>
+      </div>
+    </div>
+  )
+}
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="/">{SITE.brand}</a>
+    <nav class="nav" aria-label="Main">
+      {
+        links.map((l) => (
+          <a href={l.href} aria-current={isCurrent(l.href) === 'page' ? 'page' : undefined}>
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>

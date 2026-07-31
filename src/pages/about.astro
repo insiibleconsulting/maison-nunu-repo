@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { SITE } from '../config/site';
+import { generalLink } from '../lib/whatsapp';
+---
+
+<Base title="About" description={`About ${SITE.brand} — ${SITE.tagline}.`}>
+  <section class="section">
+    <div class="shell measure">
+      <span class="eyebrow">About</span>
+      <h1 style="margin-top:0.5rem;">Made in small runs, sold in conversation.</h1>
+
+      <p class="lede" style="margin-top:1.2rem;">
+        {SITE.brand} makes jewellery and accessories in batches small enough that we still know where
+        every piece went.
+      </p>
+
+      <h3 style="margin-top:2.4rem; margin-bottom:0.7rem;">Why there’s no checkout</h3>
+      <p style="margin-bottom:1rem;">
+        Most of what we sell needs one question answered before it ships — a ring size, a chain
+        length, which stone, whether it’s being engraved. Shopping carts are bad at questions.
+        WhatsApp is good at them.
+      </p>
+      <p style="margin-bottom:1rem;">
+        So every piece on this site has an enquiry button instead of an add-to-cart. It opens a chat
+        with the piece already named, and we take it from there.
+      </p>
+
+      <h3 style="margin-top:2.4rem; margin-bottom:0.7rem;">Made to order</h3>
+      <p style="margin-bottom:1rem;">
+        Pieces marked <em>made to order</em> are started after you order them. That usually means two
+        to four weeks, and it means you get a say in the details along the way — for stone-set pieces
+        we photograph the options and let you choose.
+      </p>
+
+      <h3 style="margin-top:2.4rem; margin-bottom:0.7rem;">Care</h3>
+      <p style="margin-bottom:1.6rem;">
+        Keep pieces dry, store them apart so chains don’t knot, and take gold vermeil off before
+        swimming. Anything we made, we’ll help you repair.
+      </p>
+
+      <WhatsAppCTA href={generalLink()} label="Ask us anything" />
+    </div>
+  </section>
+</Base>

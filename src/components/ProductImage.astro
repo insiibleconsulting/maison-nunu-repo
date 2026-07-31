@@ -1,0 +1,111 @@
+---
+/**
+ * Renders the product photograph when one exists, and a generated line-art
+ * placeholder when it does not.
+ *
+ * The placeholder is deliberately category-specific and carries the SKU, so a
+ * page of them is still reviewable with the client ("the ring one is wrong")
+ * without anyone mistaking it for real photography.
+ *
+ * When real images arrive: drop them in /public/products/ and set `image` on
+ * the catalog entry. Nothing here needs to change.
+ */
+import type { Category } from '../data/catalog';
+
+interface Props {
+  image: string | null;
+  name: string;
+  sku: string;
+  category: Category;
+  /** Detail pages render eager and high priority; grid items stay lazy. */
+  eager?: boolean;
+}
+
+const { image, name, sku, category, eager = false } = Astro.props;
+
+// Line art per category. Stroked, never filled — reads as a schematic rather
+// than as a bad illustration.
+const ART: Record<Category, string> = {
+  rings: `
+    <circle cx="200" cy="270" r="86" />
+    <circle cx="200" cy="270" r="66" />
+    <path d="M160 196 L200 150 L240 196" />
+    <path d="M176 186 L200 162 L224 186" />`,
+  necklaces: `
+    <path d="M104 150 C104 300, 296 300, 296 150" />
+    <path d="M112 152 C112 288, 288 288, 288 152" />
+    <circle cx="200" cy="322" r="34" />
+    <circle cx="200" cy="322" r="18" />`,
+  earrings: `
+    <circle cx="140" cy="240" r="52" />
+    <path d="M140 188 L140 160" />
+    <circle cx="260" cy="240" r="52" />
+    <path d="M260 188 L260 160" />
+    <circle cx="140" cy="322" r="9" />
+    <circle cx="260" cy="322" r="9" />`,
+  bracelets: `
+    <ellipse cx="200" cy="260" rx="104" ry="72" />
+    <ellipse cx="200" cy="260" rx="82" ry="52" />
+    <path d="M96 260 L84 260" />
+    <path d="M304 260 L316 260" />`,
+  accessories: `
+    <rect x="112" y="176" width="176" height="176" rx="6" />
+    <rect x="136" y="200" width="128" height="128" rx="4" />
+    <path d="M112 264 L288 264" />
+    <path d="M200 176 L200 352" />`,
+};
+---
+
+{
+  image ? (
+    <img
+      src={image}
+      alt={name}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : 'auto'}
+      decoding="async"
+      width="800"
+      height="1000"
+    />
+  ) : (
+    <svg
+      viewBox="0 0 400 500"
+      role="img"
+      aria-label={`${name} — photography pending`}
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <rect width="400" height="500" fill="#f4f2f1" />
+      <g
+        fill="none"
+        stroke="#7a2036"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.5"
+        set:html={ART[category]}
+      />
+      <text
+        x="200"
+        y="424"
+        text-anchor="middle"
+        font-family="ui-sans-serif, system-ui, sans-serif"
+        font-size="13"
+        letter-spacing="3"
+        fill="#665d5f"
+      >
+        {sku}
+      </text>
+      <text
+        x="200"
+        y="446"
+        text-anchor="middle"
+        font-family="ui-sans-serif, system-ui, sans-serif"
+        font-size="9.5"
+        letter-spacing="2.4"
+        fill="#615759"
+      >
+        IMAGE PENDING
+      </text>
+    </svg>
+  )
+}

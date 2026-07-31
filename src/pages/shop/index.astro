@@ -1,0 +1,98 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import WhatsAppCTA from '../../components/WhatsAppCTA.astro';
+import { PRODUCTS, CATEGORIES } from '../../data/catalog';
+import { generalLink } from '../../lib/whatsapp';
+---
+
+<Base
+  title="Shop"
+  description="Browse Maison Nunu jewellery and accessories. Message us about any piece on WhatsApp."
+>
+  <section class="section">
+    <div class="shell">
+      <span class="eyebrow">The collection</span>
+      <h1 style="margin-top:0.5rem;">Shop</h1>
+      <p class="lede" style="margin-top:0.8rem;">
+        Every piece links straight through to WhatsApp with its reference already attached, so you
+        never have to describe what you’re looking at.
+      </p>
+
+      <!--
+        Filtering is client-side over the already-rendered grid: the whole catalog
+        is small enough that shipping it once beats a round trip per category, and
+        it keeps the page fully static. Links stay crawlable and shareable via ?c=.
+      -->
+      <div class="cats" role="group" aria-label="Filter by category">
+        <a href="/shop/" data-filter="all" aria-current="true">All</a>
+        {CATEGORIES.map((c) => <a href={`/shop/?c=${c.id}`} data-filter={c.id}>{c.label}</a>)}
+      </div>
+
+      <div class="grid" id="product-grid">
+        {
+          PRODUCTS.map((product) => (
+            <div data-category={product.category}>
+              <ProductCard product={product} />
+            </div>
+          ))
+        }
+      </div>
+
+      <!-- aria-live so filtering announces the result to a screen reader; the
+           visible grid change alone is silent. -->
+      <p id="empty-state" hidden class="meta" style="margin-top:2rem;" aria-live="polite">
+        Nothing in this category yet.
+      </p>
+
+      <div style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--line);">
+        <h3 style="margin-bottom:0.6rem;">Looking for something you can’t see?</h3>
+        <p style="margin-bottom:1.2rem; color:var(--muted);">
+          We make bespoke pieces and can source specific stones. Tell us what you have in mind.
+        </p>
+        <WhatsAppCTA href={generalLink()} label="Ask about bespoke" variant="ghost" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const grid = document.getElementById('product-grid');
+  const empty = document.getElementById('empty-state');
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-filter]');
+
+  function apply(category: string) {
+    if (!grid || !empty) return;
+    let visible = 0;
+
+    for (const item of grid.children) {
+      const el = item as HTMLElement;
+      const match = category === 'all' || el.dataset.category === category;
+      el.hidden = !match;
+      if (match) visible++;
+    }
+
+    empty.hidden = visible > 0;
+    links.forEach((l) => {
+      l.setAttribute('aria-current', l.dataset.filter === category ? 'true' : 'false');
+    });
+  }
+
+  // Deep links like /shop/?c=rings work on first load and on back/forward.
+  function fromUrl() {
+    apply(new URLSearchParams(window.location.search).get('c') ?? 'all');
+  }
+
+  links.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      const category = link.dataset.filter ?? 'all';
+      const url = category === 'all' ? '/shop/' : `/shop/?c=${category}`;
+      history.pushState({ category }, '', url);
+      apply(category);
+    });
+  });
+
+  window.addEventListener('popstate', fromUrl);
+  fromUrl();
+</script>
