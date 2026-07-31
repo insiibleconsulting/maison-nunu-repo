@@ -24,7 +24,8 @@ introduces a paid service needs to be flagged as a change of premise, not slippe
 
 ## Status as of 31 July 2026
 
-Branch `build/astro-whatsapp-site`, commit `068537d`, pushed. **Not merged to `main`, no PR opened.**
+**Merged to `main`** via PR #1. `main` is the working branch — `build/astro-whatsapp-site` is spent
+and can be deleted.
 
 Built and verified:
 
