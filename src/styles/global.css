@@ -4,20 +4,27 @@
    Direction: the jeweler's bench, not the jewelry advertisement.
    Oyster ground, near-black ink, burgundy accent, brass used sparingly.
 
-   The accent is jeweler's rouge — the burgundy polishing compound worked
-   into a cloth at the bench. It is the colour of making the piece, not of
-   advertising it.
+   The accent is jeweler's rouge — the burgundy polishing compound worked into
+   a cloth at the bench. Note the origin story is about where the colour comes
+   from, not a claim about Maison Nunu: they resell, they do not manufacture
+   (invariant 5c). Keep the colour, don't revive the craft narrative around it.
 
    The ground is a neutral oyster rather than the cool grey-green an earlier
    pass used: under a red accent, green-grey reads as a complementary clash.
    It is deliberately NOT cream — cream + serif + a warm accent is the most
    templated palette on the web right now.
 
-   Deliberately NO GOLD. Two reasons:
+   NO GOLD as a ground or an accent on light surfaces. Two reasons, and only
+   the first is still the original one:
      1. Gold product photography reads as gold against a neutral ground, and
         disappears against a gold-toned one.
-     2. Maison Nunu is a small-batch maker, not a luxury house. Gold-on-cream
-        is the costume of a brand it isn't.
+     2. The brand guide's own gold (#c89a6a, below) is 2.06:1 on --oyster —
+        unusable as text or as an interface colour on any light background.
+        --brass is the accessible stand-in.
+
+   The reason this rule USED to give — "Maison Nunu is a maker, not a luxury
+   house" — is retired. They resell, and the guide positions them as premium.
+   The rule survives on the arithmetic, not on that story.
 
    Single light theme, committed deliberately: product photography needs one
    consistent ground to be judged against.
@@ -56,7 +63,7 @@
   --brass: #755417;
   --brass-soft: rgba(117, 84, 23, 0.11);
 
-  /* ---- brand guide palette (assets/Brand style guide.pdf, Aug 2026) --------
+  /* ---- brand guide palette (client style guide, Aug 2026; see CLAUDE.md) ---
      CURRENTLY UNUSED. The footer was built on --midnight for a while and the
      user reverted it to the oyster ground, so nothing references these today.
      They are kept, with the arithmetic, because the constraint they encode is

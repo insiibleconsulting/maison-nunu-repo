@@ -290,7 +290,10 @@ Direction: **the jeweler's bench, not the jewelry advertisement.**
 
 ### The brand guide, and why the site only half-followed it
 
-`assets/Brand style guide.pdf` (10 pages, Aug 2026) is the client's real identity. The site was built
+The client's real identity, from the brand style guide (10 pages, Aug 2026). **The PDF itself is no
+longer in the repo** — removed in `1e8e6a4` — so the values below are the only in-repo record of it.
+To read the original again: `git show c7cc78a:'assets/Brand style guide.pdf' > guide.pdf`.
+The site was built
 before anyone read it, and matched it by luck in one place and missed it in three:
 
 | | Guide | Site | |
@@ -332,7 +335,8 @@ cost roughly 3× the WebP. Use the PNGs for web.
 
 **True vectors do exist**: `.ai` and `.eps` alongside each lockup, plus layered `.psd`. Those are the
 print masters — use them for signage, packaging and anything that scales. There is also
-`assets/Brand style guide.pdf` (10 pages) and `favicon_io.zip`.
+the layered `.psd` masters. Note `assets/` now holds only `Final logo/` and `Superseded logo/` — the
+guide PDF, business card and letterhead were removed in `1e8e6a4` and live in history alone.
 
 Deployed derivatives, all generated with `sharp` from the PNGs:
 
@@ -494,9 +498,9 @@ are confident that your Wrangler file is ready for production use."
 If a wrangler file is ever genuinely needed, generate it from the live project with
 `npx wrangler pages download config` rather than hand-writing one.
 
-**Residual tripwire:** `assets/Brand style guide.pdf` is 28.3MB and tracked. With the build settings
-correct it is never uploaded, because it is not in `dist/`. But if the output directory is ever blank
-again, it is the file that will fail the deploy first.
+**No file can trip this limit any more.** The user removed the 28.3MB guide and the stationery in
+`1e8e6a4`, and nothing tracked is now over 25 MiB — verified. Correct build settings make it moot
+regardless, since only `dist/` is ever uploaded.
 
 ---
 
