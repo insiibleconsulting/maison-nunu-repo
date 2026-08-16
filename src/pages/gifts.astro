@@ -1,0 +1,102 @@
+---
+/**
+ * Gifting entry point.
+ *
+ * Someone buying for themselves browses by collection. Someone buying for
+ * another person browses by budget, because they already know roughly what they
+ * want to spend and have no idea what size anything is. Those are different
+ * questions and the shop page only answers the first.
+ *
+ * The bands are derived from the actual catalog spread (45,000–320,000 XAF,
+ * median 118,000) rather than picked as round numbers, so each one contains a
+ * usable number of pieces — 11 / 22 / 21 / 11 rather than one band holding
+ * everything. If prices change materially, re-derive them; a band with two
+ * pieces in it is worse than no band.
+ *
+ * Everything links into the existing shop filter, so there is no second grid to
+ * maintain and no way for this page to drift out of sync with the catalog.
+ */
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { PRODUCTS } from '../data/catalog';
+import { generalLink } from '../lib/whatsapp';
+import { SITE } from '../config/site';
+
+const BANDS = [
+  { id: 'under-75', label: 'Under 75 000', min: 0, max: 75000,
+    blurb: 'Studs, fine bands, raffia and the everyday pieces.' },
+  { id: 'under-120', label: '75 000 – 120 000', min: 75000, max: 120000,
+    blurb: 'Hoops, chains, cuffs and sunglasses — the usual gift range.' },
+  { id: 'under-200', label: '120 000 – 200 000', min: 120000, max: 200000,
+    blurb: 'Pendants, brooches and the lighter watches.' },
+  { id: 'over-200', label: '200 000 and above', min: 200000, max: Infinity,
+    blurb: 'Stone-set rings, chronographs and the pieces bought once.' },
+];
+
+const inBand = (b: (typeof BANDS)[number]) =>
+  PRODUCTS.filter((p) => p.price >= b.min && p.price < b.max);
+
+// Three suggestions, spread across collections so the row doesn't show four
+// variations of the same thing.
+const seen = new Set<string>();
+const picks = PRODUCTS.filter((p) => {
+  if (p.price < 60000 || p.price > 180000) return false;
+  if (seen.has(p.category)) return false;
+  seen.add(p.category);
+  return true;
+}).slice(0, 3);
+---
+
+<Base
+  title="Gifts"
+  description={`Gift ideas from ${SITE.brand}, grouped by budget. Message us and we will help you choose.`}
+>
+  <section class="section">
+    <div class="shell">
+      <span class="eyebrow">Gifts</span>
+      <h1 style="margin-top:0.5rem;">Buying for someone else?</h1>
+      <p class="lede" style="margin-top:1rem; max-width:58ch;">
+        Start with what you want to spend — it’s the one thing you already know. We’ll help with the
+        rest, including the part nobody knows, which is their size.
+      </p>
+
+      <div class="bands">
+        {BANDS.map((b) => {
+          const n = inBand(b).length;
+          return (
+            <a class="band" href={`/shop/?p=${b.id}`}>
+              <span class="band__label">{b.label} <span class="band__unit">FCFA</span></span>
+              <span class="band__blurb">{b.blurb}</span>
+              <span class="band__count">{n} pieces</span>
+            </a>
+          );
+        })}
+      </div>
+
+      <div style="margin-top:3rem;">
+        <span class="eyebrow">Safe bets</span>
+        <h2 style="margin-top:0.6rem; margin-bottom:0.5rem;">Hard to get wrong</h2>
+        <p style="margin-bottom:var(--s-4); color:var(--muted); max-width:56ch;">
+          Pieces with no size to guess — which is what makes them the ones to choose when you aren’t
+          certain.
+        </p>
+        <div class="grid">
+          {picks.map((p) => <ProductCard product={p} />)}
+        </div>
+      </div>
+
+      <div class="measure" style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--line);">
+        <h3 style="margin-bottom:0.6rem;">Don’t know their size?</h3>
+        <p style="margin-bottom:1.2rem; color:var(--muted);">
+          Most people don’t. Tell us who it’s for and roughly what you’d like to spend, and we’ll
+          suggest two or three things — starting with pieces that don’t need a size at all.
+        </p>
+        <WhatsAppCTA href={generalLink()} label="Ask for a suggestion" />
+        <p class="meta" style="margin-top:1rem;">
+          Sizing help is on the <a href="/guide/">care &amp; sizing guide</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

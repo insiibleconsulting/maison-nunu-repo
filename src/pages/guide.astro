@@ -1,0 +1,134 @@
+---
+/**
+ * Care & sizing guide.
+ *
+ * This page exists to answer the questions that otherwise arrive one at a time
+ * in WhatsApp — ring size, chain length, what vermeil actually is, why the
+ * raffia bag darkens. Every one of those costs a round trip on a phone the
+ * client is answering personally, so a page that pre-empts them is worth more
+ * here than on a site with a checkout.
+ *
+ * The material list is derived from the catalog rather than invented, so it
+ * cannot describe something Maison Nunu does not sell. If the range changes,
+ * re-check it against `data/products.csv`.
+ */
+import Base from '../layouts/Base.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { generalLink } from '../lib/whatsapp';
+import { SITE } from '../config/site';
+
+const materials = [
+  {
+    name: 'Gold vermeil',
+    what: 'Sterling silver with a thick layer of gold over it — a heavier plating than "gold plated", and a solid silver core rather than base metal.',
+    care: 'Take it off before swimming, showering and sleeping. Perfume and hand sanitiser are what wear plating thin, not water.',
+  },
+  {
+    name: 'Sterling silver',
+    what: '92.5% silver. It tarnishes, which is normal and reversible — it is not damage.',
+    care: 'A soft polishing cloth brings it back. Store it in a closed bag, since tarnish is a reaction to air.',
+  },
+  {
+    name: '14ct gold',
+    what: 'Solid gold throughout, not a coating. The pieces that use it are the ones priced highest, and they will outlast everything else here.',
+    care: 'Effectively none. Warm water and a soft brush when it looks dull.',
+  },
+  {
+    name: 'Gold plate & rose gold plate',
+    what: 'A thin gold layer over another metal. Used on watch cases and some chains, where the piece is not in constant skin contact.',
+    care: 'Keep it dry. Plating wears at friction points first — the clasp, the underside of a ring.',
+  },
+  {
+    name: 'Freshwater pearl',
+    what: 'Grown, not cut, so every one differs slightly in shape and lustre. That variation is the point.',
+    care: 'Last thing on, first thing off. Pearls are soft and perfume dulls them permanently.',
+  },
+  {
+    name: 'Acetate',
+    what: 'The frame material on the sunglasses. Cut from a solid block, so the pattern runs through it rather than sitting on the surface.',
+    care: 'Clean with a damp cloth. Leaving them on a dashboard in the sun will warp the frame.',
+  },
+  {
+    name: 'Handwoven raffia',
+    what: 'Palm fibre, woven by hand. Every bag and hat differs a little in weave and tone.',
+    care: 'Keep it dry and stuff it with tissue when stored so it holds its shape. It softens and darkens with use.',
+  },
+];
+
+const sizing = [
+  {
+    q: 'What ring size am I?',
+    a: 'Wrap a strip of paper around the base of the finger, mark where it meets, and measure the length in millimetres. Send us that number and we will convert it. Sizes across the range run roughly F to U.',
+  },
+  {
+    q: 'Which chain length?',
+    a: '42cm sits at the collarbone on most people, 45cm just below it, and 50cm clears a crew neckline. Our layering sets are cut at deliberately different lengths so the chains hang clear of each other.',
+  },
+  {
+    q: 'Which bracelet length?',
+    a: 'Measure your wrist with the paper strip and add about 1.5cm for comfort. Several bracelets are adjustable, and the bangles slip over the hand rather than fastening.',
+  },
+  {
+    q: 'What about hats?',
+    a: 'The straw hats have an internal drawstring, so one size covers a range. The Packable Panama comes in S–L.',
+  },
+];
+---
+
+<Base
+  title="Care & sizing"
+  description={`How to size, wear and look after pieces from ${SITE.brand} — materials, measurements and care.`}
+>
+  <section class="section">
+    <div class="shell measure">
+      <span class="eyebrow">Guide</span>
+      <h1 style="margin-top:0.5rem;">Care &amp; sizing</h1>
+      <p class="lede" style="margin-top:1.2rem;">
+        The questions we are asked most, answered before you have to ask them. If yours isn’t here,
+        message us — that’s what the buttons are for.
+      </p>
+
+      <h2 style="margin-top:2.8rem;">Getting the size right</h2>
+      <dl class="guide-list">
+        {sizing.map((s) => (
+          <div class="guide-list__row">
+            <dt>{s.q}</dt>
+            <dd>{s.a}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <h2 style="margin-top:2.8rem;">Materials, and how to keep them</h2>
+      <p style="margin-bottom:1.4rem; color:var(--muted);">
+        What each material actually is, and the one thing that shortens its life.
+      </p>
+      <dl class="guide-list">
+        {materials.map((m) => (
+          <div class="guide-list__row">
+            <dt>{m.name}</dt>
+            <dd>
+              {m.what}
+              <span class="guide-care">{m.care}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <h2 style="margin-top:2.8rem;">Pieces marked “ordered in”</h2>
+      <p style="margin-bottom:1rem;">
+        Those aren’t held in stock. We place the order once you’ve decided, which usually takes two
+        to four weeks. For stone-set pieces we send photographs of what’s available so you pick the
+        one you want rather than taking whatever arrives.
+      </p>
+
+      <div style="margin-top:2.6rem; padding-top:1.8rem; border-top:1px solid var(--line);">
+        <h3 style="margin-bottom:0.7rem;">Still not sure?</h3>
+        <p style="margin-bottom:1.2rem; color:var(--muted);">
+          Send us a message with what you’re considering. Sizing is far easier to sort in a
+          conversation than from a chart.
+        </p>
+        <WhatsAppCTA href={generalLink()} label="Ask us about sizing" />
+      </div>
+    </div>
+  </section>
+</Base>

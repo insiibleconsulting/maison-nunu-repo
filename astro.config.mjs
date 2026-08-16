@@ -12,4 +12,22 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
+
+  vite: {
+    server: {
+      // DEV ONLY — has no effect on `astro build` or on what Cloudflare serves.
+      //
+      // Vite rejects requests whose Host header it doesn't recognise, as a
+      // DNS-rebinding defence. A Cloudflare tunnel arrives with the tunnel's
+      // hostname, so the dev server refuses it until that host is allowed.
+      //
+      // The leading dot is a subdomain wildcard. It is deliberate: a quick
+      // tunnel mints a NEW random subdomain every restart, so pinning the
+      // current one would break on the next `cloudflared` run.
+      //
+      // Scoped to the tunnel domain rather than `true`, which would disable
+      // the check for every host.
+      allowedHosts: ['.trycloudflare.com'],
+    },
+  },
 });

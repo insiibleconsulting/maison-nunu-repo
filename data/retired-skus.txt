@@ -1,0 +1,14 @@
+# Retired SKUs — never reissue.
+#
+# The SKU is the ref code the client reads in WhatsApp and the key in the lead
+# spreadsheet. Handing a retired one to a different piece silently repoints
+# historical lead data at the wrong product, and nothing looks broken.
+#
+# `npm run product:add` skips these when minting, and `npm run catalog:check`
+# fails the build if one reappears in data/products.csv.
+#
+# Appended automatically by scripts/build-catalog.mjs when a row leaves the CSV.
+# Never delete a line from this file. Comments after # are ignored.
+
+ACC-01  # Silk Hair Scarf — retired 2026-07-31 with the `accessories` bucket
+ACC-02  # Travel Jewelry Roll — retired 2026-07-31 with the `accessories` bucket

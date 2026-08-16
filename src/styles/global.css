@@ -1,10 +1,10 @@
 /* ---------------------------------------------------------------------------
    Maison Nunu — design tokens
 
-   Direction: the jeweller's bench, not the jewellery advertisement.
+   Direction: the jeweler's bench, not the jewelry advertisement.
    Oyster ground, near-black ink, burgundy accent, brass used sparingly.
 
-   The accent is jeweller's rouge — the burgundy polishing compound worked
+   The accent is jeweler's rouge — the burgundy polishing compound worked
    into a cloth at the bench. It is the colour of making the piece, not of
    advertising it.
 
@@ -46,7 +46,7 @@
   --line-strong: #bcb4b2;
   --line-interactive: #7d7376;
 
-  /* accent — burgundy (jeweller's rouge). 8.17:1 on --oyster;
+  /* accent — burgundy (jeweler's rouge). 8.17:1 on --oyster;
      white on it is 10.06:1, so the primary button is comfortably legible. */
   --burgundy: #7a2036;
   --burgundy-deep: #5f1a2b;
@@ -55,6 +55,32 @@
   /* secondary — brass. Made-to-order tags and the placeholder banner only. */
   --brass: #755417;
   --brass-soft: rgba(117, 84, 23, 0.11);
+
+  /* ---- brand guide palette (assets/Brand style guide.pdf, Aug 2026) --------
+     CURRENTLY UNUSED. The footer was built on --midnight for a while and the
+     user reverted it to the oyster ground, so nothing references these today.
+     They are kept, with the arithmetic, because the constraint they encode is
+     the non-obvious part and it will be needed by anyone who tries this again.
+
+     The guide's own gold is #c89a6a and it is UNUSABLE as text on any light
+     ground — 2.06:1 on --oyster, below even the 3:1 bar for interface elements.
+     That is why --brass above exists: it is the accessible stand-in for gold on
+     light surfaces, and it is what the site actually uses.
+
+     On the guide's midnight blue, gold scores 6.32:1 and passes comfortably —
+     which is exactly how the guide itself uses it (business card, letterhead).
+     So the guide's real system is: burgundy accents light surfaces, gold
+     accents dark ones.
+
+     If a dark surface is ever introduced: do not put --gold on a light
+     background, and do not put --burgundy on --midnight — that pair is 1.59:1
+     and effectively invisible. On --midnight, beige is 13.26:1, gold 6.32:1
+     and --midnight-muted 7.31:1. */
+  --midnight: #1a222d;
+  --gold: #c89a6a;
+  --beige: #ede9e4;
+  --midnight-muted: #a8b0ba;
+  --midnight-rule: #333e4d;
 
   /* Semantic error red, deliberately distinct from the burgundy accent so a
      validation message never reads as brand colour. 6.14:1 on --oyster. */
@@ -169,6 +195,21 @@ main:focus {
   top: 0.5rem;
 }
 
+/* Available to assistive tech, invisible on screen. Used for the burger's
+   accessible name — the bars are aria-hidden decoration, so without this the
+   button would announce as an unlabelled "button". */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- layout ---------- */
 
 .shell {
@@ -270,6 +311,10 @@ p {
   padding-block: var(--s-3);
 }
 
+/* The type styles here are no longer what renders — the wordmark holds the logo
+   image. They are kept deliberately: if the file ever 404s, the img alt text
+   falls back into this rule and the header still reads as the brand in the
+   right face, rather than as unstyled body text. */
 .wordmark {
   font-family: var(--display);
   font-variation-settings: "SOFT" 40, "WONK" 1, "opsz" 40, "wght" 500;
@@ -277,6 +322,34 @@ p {
   letter-spacing: -0.01em;
   text-decoration: none;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+/* Height-constrained, width auto: the header controls the size and the 4.15:1
+   ratio follows.
+
+   CEILING: the source file is 1037×250, so 250px is all the vertical detail
+   that exists. Divide 250 by the screen's pixel ratio to get the largest CSS
+   height that still renders sharp — 125px at 2×, 83px at 3×. Desktop screens
+   are 1× or 2×, so 80px here uses 160 of the 250 and has room to spare. The
+   phones that are 3× get the smaller value in the media query below.
+
+   This is the last size increase available without new artwork. Going further
+   needs an SVG (this mark is flat geometry, so it would be tiny) or a 2×
+   export at 2074×500. */
+.wordmark__mark {
+  height: 80px;
+  width: auto;
+}
+
+@media (max-width: 700px) {
+  /* The header stacks below 700px, so the mark sits centred on its own row and
+     can afford to be close to the desktop size. At 54px it is 224px wide — well
+     inside the ~355px a 390px viewport leaves after the shell padding. */
+  .wordmark__mark {
+    height: 54px;
+  }
 }
 
 .nav {
@@ -285,6 +358,64 @@ p {
   align-items: center;
   font-size: 0.85rem;
   font-variation-settings: "wght" 450;
+}
+
+/* ---------- collections bar ----------
+   A quiet second line under the masthead listing all eight collections. No
+   JavaScript and no disclosure: the range is visible rather than discoverable.
+   See the comment in Header.astro for why it is not a dropdown. */
+.collections-bar {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.collections-bar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: clamp(0.9rem, 2.2vw, 1.7rem);
+  align-items: center;
+  min-height: 44px;
+}
+
+.collections-bar a {
+  display: inline-block;
+  padding-block: 0.7rem;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--muted);
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.collections-bar a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--burgundy);
+}
+
+@media (max-width: 700px) {
+  /* Scrolls sideways instead of wrapping to three cramped rows. The negative
+     margin plus matching padding lets the first and last chip sit flush to the
+     shell edge while still scrolling clear of it. */
+  .collections-bar .shell {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .collections-bar .shell::-webkit-scrollbar {
+    display: none;
+  }
+
+  .collections-bar ul {
+    gap: 1.1rem;
+  }
 }
 
 .nav a {
@@ -301,15 +432,172 @@ p {
   border-bottom-color: var(--burgundy);
 }
 
+/* ---------- mobile nav ----------
+
+   The burger is an ENHANCEMENT, not the baseline. Every rule that collapses the
+   nav is scoped to `.js` (set inline in Base.astro before first paint). With
+   scripting off the button never appears and the nav stays open as a stacked
+   row — the layout that shipped before the burger existed. Navigation is the
+   one thing on this site that must never depend on a script, for the same
+   reason the WhatsApp CTAs are real <a href>s.
+
+   The open state lives in a single place: aria-expanded on the button. CSS
+   reads it with a sibling selector rather than a second class, so the visual
+   state and the state announced to a screen reader cannot drift apart. */
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  /* 44px is the minimum comfortable touch target. The bars inside are 22px, so
+     the extra is invisible padding doing real work. */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-right: -0.5rem; /* optically aligns the bars to the shell edge */
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.nav-toggle__bars,
+.nav-toggle__bars::before,
+.nav-toggle__bars::after {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.nav-toggle__bars {
+  position: relative;
+}
+
+.nav-toggle__bars::before,
+.nav-toggle__bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.nav-toggle__bars::before {
+  top: -7px;
+}
+
+.nav-toggle__bars::after {
+  top: 7px;
+}
+
+/* Open: the middle bar goes transparent rather than display:none so the two
+   remaining bars can rotate through its position into an X. */
+.nav-toggle[aria-expanded="true"] .nav-toggle__bars {
+  background: transparent;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__bars::before {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__bars::after {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 @media (max-width: 700px) {
+  /* No-JS fallback: logo above, nav below, as before. */
   .site-header .shell {
     flex-direction: column;
     gap: var(--s-2);
     padding-block: var(--s-2);
   }
+
   .nav {
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  /* --- scripted: logo centred, burger to the right, nav in a panel beneath ---
+
+     Grid rather than flex, because the mark has to centre against the VIEWPORT
+     and not against whatever space the burger leaves over. The empty first
+     column mirrors the burger's column and does the balancing.
+
+     1fr auto 1fr also fails safely: if the mark ever outgrows the row, the
+     empty column collapses and the mark slides left instead of colliding with
+     the button. A flex row with justify-content: center would have let them
+     overlap. */
+
+  .js .site-header .shell {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--s-2);
+    padding-block: var(--s-2);
+  }
+
+  .js .wordmark {
+    grid-column: 2;
+  }
+
+  /* Centring is not free: the mark now has to fit between two 44px columns
+     rather than just one, which costs it about 88px of width. 14vw is the
+     largest factor that still clears that at 320px — the narrowest screen
+     worth supporting — and it reaches the desktop 68px on any phone 486px or
+     wider. At 68px the mark is 204px at 3×, inside the file's 250. */
+  .js .wordmark__mark {
+    height: clamp(42px, 14vw, 68px);
+  }
+
+  .js .nav-toggle {
+    display: inline-flex;
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  /* The panel is positioned against .site-header — which is sticky, and so is
+     already a containing block — rather than against .shell, so it spans the
+     full width of the bar instead of stopping at the shell gutters. */
+  .js .nav {
+    display: none;
+    grid-column: 1 / -1;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    background: var(--oyster);
+    border-bottom: 1px solid var(--line);
+    padding-inline: clamp(1.1rem, 4vw, 2.75rem);
+    padding-block: 0 var(--s-2);
+    font-size: 1rem;
+  }
+
+  .js .nav-toggle[aria-expanded="true"] ~ .nav {
+    display: flex;
+  }
+
+  /* 0.9rem block padding on a 1rem line gives a ~48px row. The border is a
+     divider here, so the desktop hover/current underline would read as a
+     stray rule — current page is marked with colour and weight instead. */
+  .js .nav a {
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .js .nav a:last-child {
+    border-bottom: 0;
+  }
+
+  .js .nav a:hover,
+  .js .nav a[aria-current="page"] {
+    color: var(--burgundy);
+    border-bottom-color: var(--line);
+    font-variation-settings: "wght" 600;
   }
 }
 
@@ -668,6 +956,187 @@ p {
 
 /* ---------- category filter ---------- */
 
+/* ---------- homepage collection tiles ----------
+   Distinct from `.cats` above, which is the pill filter row on /shop/ and is
+   still in use — these two must not be merged.
+
+   The frame is 1/1 where product cards are 4/5, so a collection tile never
+   reads as a product at a glance. Hover borrows the product card's scale(1.03)
+   so the whole grid behaves like one system. */
+.cat-tiles {
+  margin-top: var(--s-4);
+  display: grid;
+  gap: clamp(0.7rem, 1.6vw, 1.1rem);
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.cat-tile {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.cat-tile__frame {
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.cat-tile__frame :is(img, svg) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cat-tile:hover .cat-tile__frame :is(img, svg) {
+  transform: scale(1.03);
+}
+
+.cat-tile__label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.cat-tile__name {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-variation-settings: "wght" 500, "opsz" 24;
+  color: var(--ink);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.cat-tile:hover .cat-tile__name {
+  border-bottom-color: var(--burgundy);
+}
+
+.cat-tile__count {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-tile:focus-visible {
+  outline: 2px solid var(--burgundy);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+/* ---------- guide page ---------- */
+.guide-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.guide-list__row {
+  display: grid;
+  gap: 0.35rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.guide-list dt {
+  font-family: var(--display);
+  font-size: 1.02rem;
+  font-variation-settings: "wght" 500, "opsz" 24;
+  color: var(--ink);
+}
+
+.guide-list dd {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* The care line is the actionable half, so it is separated rather than run on
+   into the description — someone scanning for "what do I actually do" finds it
+   without reading the definition first. */
+.guide-care {
+  display: block;
+  margin-top: 0.5rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid var(--burgundy);
+  color: var(--ink-soft);
+}
+
+/* ---------- gift price bands ---------- */
+.bands {
+  margin-top: var(--s-5);
+  display: grid;
+  gap: clamp(0.7rem, 1.6vw, 1rem);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.band {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.3rem 1.4rem;
+  min-height: 44px;
+  text-decoration: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--burgundy);
+  border-radius: var(--radius);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease;
+}
+
+.band:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  border-top-color: var(--burgundy-deep);
+}
+
+.band__label {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-variation-settings: "wght" 500, "opsz" 28;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.band__unit {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.band__blurb {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.band__count {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.band:focus-visible {
+  outline: 2px solid var(--burgundy);
+  outline-offset: 2px;
+}
+
 .cats {
   display: flex;
   flex-wrap: wrap;
@@ -812,6 +1281,43 @@ p {
   justify-content: space-between;
 }
 
+/* Padding, not position. The lockup sits at the head of the row as it always
+   has — an earlier pass centred it on its own row and the user preferred it
+   here — but at 96px tall it was landing hard against the shell's edge and the
+   footer's top border with nothing around it.
+
+   The inset is deliberately asymmetric: more on the left and top, where the
+   mark meets the page edges, and less on the right, where the gap to the Shop
+   column is already doing the work. It is padding on a wrapper rather than
+   margin on the image so the flex row's own `gap` is not fighting it. */
+.site-footer__brand {
+  padding: var(--s-3) var(--s-4) var(--s-4) var(--s-4);
+}
+
+/* Same horizontal lockup as the header, one file serving both so the browser
+   fetches it once.
+
+   Sized by height, because the lockup is 4.149:1 and width is the constraint
+   that bites: at 96px it computes to 398px wide, which is fine in a desktop
+   column but overflows the ~355px a 390px viewport leaves after the shell
+   padding. Hence the smaller mobile value — 72px is 299px wide and clears it.
+
+   96px also sets the floor for the source file. Sharp rendering at 3x needs
+   96 x 3 x 4.149 = 1195px of width, which is why logo-horizontal.webp is
+   generated at 1200px rather than the 1000px the header alone would need. If
+   this height grows again, regenerate the asset to match or it will upscale. */
+.site-footer__logo {
+  height: 96px;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .site-footer__logo {
+    height: 72px;
+  }
+}
+
 .site-footer h4 {
   font-size: 0.68rem;
   font-variation-settings: "wght" 600;
@@ -847,6 +1353,23 @@ p {
   color: var(--faint);
 }
 
+/* The build credit is the only footer link carrying the accent colour.
+   Burgundy is 8.17:1 on the oyster ground and burgundy-deep is 10.22:1, so this
+   clears AA at 0.78rem — and unlike the other footer links, which are the same
+   colour as the prose around them, it is identifiable as a link without
+   hovering.
+
+   Selector carries `.site-footer a` because `.site-footer a:hover` (0,2,1)
+   would otherwise out-specify a bare `.site-footer__credit:hover` (0,2,0) and
+   drag the hover state back to --ink. */
+.site-footer a.site-footer__credit {
+  color: var(--burgundy);
+}
+
+.site-footer a.site-footer__credit:hover {
+  color: var(--burgundy-deep);
+}
+
 /* ---------- motion ----------
    One orchestrated moment: the hero thread arrives like a conversation.
    Everything else is a quiet scroll reveal.
@@ -867,13 +1390,25 @@ p {
   animation: bubble-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
-.hero__thread .msg:nth-of-type(1) {
+/* nth-CHILD, not nth-of-type. This is load-bearing.
+ *
+ * nth-of-type counts by TAG NAME, and .hero__thread's first child is also a
+ * div (.hero__thread-head). So `.msg:nth-of-type(1)` matched nothing, the two
+ * remaining rules landed on the wrong bubbles, and the third bubble matched no
+ * rule at all — inheriting delay 0 and, with fill-mode backwards holding the
+ * others at opacity 0, PLAYING FIRST. The conversation ran 3 -> 1 -> 2: the
+ * reply appeared before the question it answers.
+ *
+ * The indices are offset by one because child 1 is the thread head. If that
+ * head is ever removed, shift these back to 1/2/3.
+ */
+.hero__thread .msg:nth-child(2) {
   animation-delay: 0.15s;
 }
-.hero__thread .msg:nth-of-type(2) {
+.hero__thread .msg:nth-child(3) {
   animation-delay: 0.7s;
 }
-.hero__thread .msg:nth-of-type(3) {
+.hero__thread .msg:nth-child(4) {
   animation-delay: 1.15s;
 }
 

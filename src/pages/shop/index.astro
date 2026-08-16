@@ -8,7 +8,7 @@ import { generalLink } from '../../lib/whatsapp';
 
 <Base
   title="Shop"
-  description="Browse Maison Nunu jewellery and accessories. Message us about any piece on WhatsApp."
+  description="Browse Maison Nunu jewelry and accessories. Message us about any piece on WhatsApp."
 >
   <section class="section">
     <div class="shell">
@@ -32,7 +32,7 @@ import { generalLink } from '../../lib/whatsapp';
       <div class="grid" id="product-grid">
         {
           PRODUCTS.map((product) => (
-            <div data-category={product.category}>
+            <div data-category={product.category} data-price={product.price}>
               <ProductCard product={product} />
             </div>
           ))
@@ -48,9 +48,10 @@ import { generalLink } from '../../lib/whatsapp';
       <div style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--line);">
         <h3 style="margin-bottom:0.6rem;">Looking for something you can’t see?</h3>
         <p style="margin-bottom:1.2rem; color:var(--muted);">
-          We make bespoke pieces and can source specific stones. Tell us what you have in mind.
+          The site shows what we carry, not everything we can get. Tell us what you have in mind and
+          we’ll find out whether we can source it.
         </p>
-        <WhatsAppCTA href={generalLink()} label="Ask about bespoke" variant="ghost" />
+        <WhatsAppCTA href={generalLink()} label="Ask us to source it" variant="ghost" />
       </div>
     </div>
   </section>
@@ -61,13 +62,27 @@ import { generalLink } from '../../lib/whatsapp';
   const empty = document.getElementById('empty-state');
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-filter]');
 
-  function apply(category: string) {
+  // Price bands, mirroring the ones on /gifts/. Kept here rather than imported
+  // because this script is inlined into the page and catalog.ts must stay free
+  // of anything the Pages Function can't run (invariant 5).
+  const BANDS: Record<string, [number, number]> = {
+    'under-75': [0, 75000],
+    'under-120': [75000, 120000],
+    'under-200': [120000, 200000],
+    'over-200': [200000, Infinity],
+  };
+
+  function apply(category: string, band: string) {
     if (!grid || !empty) return;
     let visible = 0;
+    const range = BANDS[band];
 
     for (const item of grid.children) {
       const el = item as HTMLElement;
-      const match = category === 'all' || el.dataset.category === category;
+      const byCategory = category === 'all' || el.dataset.category === category;
+      const price = Number(el.dataset.price ?? 0);
+      const byPrice = !range || (price >= range[0] && price < range[1]);
+      const match = byCategory && byPrice;
       el.hidden = !match;
       if (match) visible++;
     }
@@ -78,18 +93,24 @@ import { generalLink } from '../../lib/whatsapp';
     });
   }
 
-  // Deep links like /shop/?c=rings work on first load and on back/forward.
+  // Deep links work on first load and on back/forward:
+  //   /shop/?c=rings          one collection
+  //   /shop/?p=under-75       one price band, sent from /gifts/
+  //   /shop/?c=rings&p=under-75   both
   function fromUrl() {
-    apply(new URLSearchParams(window.location.search).get('c') ?? 'all');
+    const q = new URLSearchParams(window.location.search);
+    apply(q.get('c') ?? 'all', q.get('p') ?? '');
   }
 
   links.forEach((link) => {
     link.addEventListener('click', (event) => {
       event.preventDefault();
       const category = link.dataset.filter ?? 'all';
+      // Clicking a collection clears any price band — two filters the visitor
+      // did not knowingly combine would look like a broken grid.
       const url = category === 'all' ? '/shop/' : `/shop/?c=${category}`;
       history.pushState({ category }, '', url);
-      apply(category);
+      apply(category, '');
     });
   });
 

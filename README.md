@@ -65,23 +65,71 @@ is skipped.
 
 ## Updating content
 
-Everything derives from two files:
-
 | To change | Edit |
 |---|---|
-| Products, prices, SKUs, categories | `src/data/catalog.ts` |
+| Products, prices, SKUs, photographs | `data/products.csv` — a spreadsheet |
+| Collections, currency, helpers | `src/data/catalog.ts` — by hand, outside the generated block |
 | Brand name, email, hours, tagline | `src/config/site.ts` |
 
-Product pages, the shop grid, the WhatsApp message text and the Pages Function's SKU allowlist are
-all generated from `catalog.ts`, so the allowlist can never drift out of sync with the catalog.
+`src/data/catalog.ts` is **generated** from the CSV plus the photographs on disk. Product pages, the
+shop grid, the WhatsApp message text and the Pages Function's SKU allowlist all derive from it, so
+none of them can drift out of sync with each other.
 
-**Product images:** drop files into `public/products/` and set `image` on the catalog entry. Any
-entry with `image: null` renders a generated line-art placeholder marked "IMAGE PENDING", so an
-unphotographed piece is obvious rather than broken.
+### Adding a piece
+
+```bash
+npm run product:add -- rings ~/Desktop/IMG_1234.jpg      # one photo
+npm run product:add -- watches ~/Desktop/new-shoot/      # a whole shoot
+```
+
+This mints the next free SKU for the collection, re-encodes the photo to 800×1000 (the frame is
+`aspect-ratio: 4/5`, `object-fit: cover`), writes it to `public/products/<sku>.jpg`, and appends a
+**draft** row to the CSV.
+
+Draft rows are invisible to the site. The SKU is reserved and the photo is in place, but nothing
+renders until you fill in the price and copy and set `status` to `real`. That is what makes it safe
+to empty a whole shoot into the repo before any of it has been written up.
+
+Then:
+
+```bash
+npm run catalog        # CSV + photos -> catalog.ts
+npm run catalog:check  # the gate; also runs automatically on npm run build
+```
+
+### The columns
+
+| Column | Notes |
+|---|---|
+| `sku` | Minted for you. Never edit, never reuse — see below. |
+| `slug` | The URL segment. **Frozen once set** — changing it breaks links already sent over WhatsApp. |
+| `price` | Whole francs, digits only. XAF has no centime, so `1450.00` would render 100× too cheap. |
+| `details` | Pipe-separated: `Face 11mm × 9mm \| Sizes G–U` |
+| `featured` / `madeToOrder` | `yes`, or leave empty |
+| `status` | `draft` (hidden) · `placeholder` (live, but invented copy) · `real` (client-confirmed) |
+| `notes` | Never reaches the site. For you. |
+
+Row order is the display order. Move a row in the spreadsheet and the shop grid follows.
+
+**Photographs are matched by filename, not by a path in the CSV.** `RNG-01` ⇢ `rng-01.jpg`, always.
+A published piece with no photo on disk gets `image: null` and renders the line-art placeholder
+marked "IMAGE PENDING", so a missing photograph is visible rather than broken. Dropping the file in
+later needs no edit anywhere.
 
 **SKUs are permanent.** They are the reference the client reads in WhatsApp and the key in the lead
-spreadsheet. Never reuse one for a different piece or historical lead data starts pointing at the
-wrong product.
+spreadsheet, so reusing one silently repoints historical lead data at the wrong product. Deleting a
+row appends its SKU to `data/retired-skus.txt` automatically, and the gate refuses to build if a
+retired code ever reappears.
+
+### What the gate catches
+
+`npm run catalog:check` runs before every build and blocks it on: a duplicate or retired SKU, a SKU
+whose prefix contradicts its collection, a slug collision, a price that is not whole francs, missing
+copy, a photograph with no row behind it, a collection missing its line art, and — the one that
+makes the rest trustworthy — `catalog.ts` having drifted from the CSV.
+
+It warns without blocking on states that are legitimately mid-workflow: a piece still awaiting its
+photograph, copy not yet confirmed by the client, an oversized image.
 
 ## Deploying to Cloudflare Pages
 

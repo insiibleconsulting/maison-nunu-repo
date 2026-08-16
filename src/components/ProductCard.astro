@@ -21,7 +21,13 @@ const href = `/shop/${product.slug}/`;
       sku={product.sku}
       category={product.category}
     />
-    {product.madeToOrder && <span class="product__tag">Made to order</span>}
+    {/*
+      "Ordered in", not "made to order" — Maison Nunu resells rather than
+      manufactures, so the wait is a supplier lead time, not bench time. The
+      `madeToOrder` field name is kept as-is: renaming it would mean a CSV
+      column rename and a regeneration for a label that only exists here.
+    */}
+    {product.madeToOrder && <span class="product__tag">Ordered in</span>}
   </a>
 
   <div class="product__row">

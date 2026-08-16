@@ -1,5 +1,6 @@
 ---
 import { SITE, IS_PLACEHOLDER_NUMBER } from '../config/site';
+import { CATEGORIES } from '../data/catalog';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) =>
@@ -7,6 +8,8 @@ const isCurrent = (href: string) =>
 
 const links = [
   { href: '/shop/', label: 'Shop' },
+  { href: '/gifts/', label: 'Gifts' },
+  { href: '/guide/', label: 'Guide' },
   { href: '/about/', label: 'About' },
   { href: '/contact/', label: 'Contact' },
 ];
@@ -28,8 +31,40 @@ const links = [
 
 <header class="site-header">
   <div class="shell">
-    <a class="wordmark" href="/">{SITE.brand}</a>
-    <nav class="nav" aria-label="Main">
+    <a class="wordmark" href="/">
+      {/*
+        alt carries the brand name only. The lockup also contains the words
+        "JEWELRY & ACCESSORIES", but reading that out would duplicate the hero
+        eyebrow a screen-reader meets moments later — and at header size it is
+        not legible to sighted users either, so it is not information anyone is
+        actually getting from the image.
+
+        width/height are the intrinsic pixel dimensions, not the rendered ones.
+        They give the browser the 1037:250 ratio up front so the sticky header
+        cannot shift while the file loads.
+      */}
+      <img
+        class="wordmark__mark"
+        src="/brand/logo-horizontal.webp"
+        alt={SITE.brand}
+        width="1200"
+        height="289"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </a>
+    {/*
+      Hidden until the `js` class lands, because it controls something only a
+      script can reopen. It sits BEFORE the nav in source order for two reasons:
+      the CSS opens the panel with a sibling selector off aria-expanded, and
+      tabbing reaches the control before the thing it controls.
+    */}
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle__bars" aria-hidden="true"></span>
+      <span class="visually-hidden">Menu</span>
+    </button>
+
+    <nav class="nav" id="site-nav" aria-label="Main">
       {
         links.map((l) => (
           <a href={l.href} aria-current={isCurrent(l.href) === 'page' ? 'page' : undefined}>
@@ -40,3 +75,29 @@ const links = [
     </nav>
   </div>
 </header>
+
+{/*
+  The eight collections, surfaced rather than buried.
+
+  Sixty-five products behind a single "Shop" link meant a visitor could not tell
+  the range existed without clicking into it. This is the fix, and it is a plain
+  row of links rather than a dropdown on purpose:
+
+  - no JavaScript, so it cannot break the way a disclosure can, and it survives
+    scripting being off — same reasoning as the burger being an enhancement
+  - no click to discover; the range is simply visible
+  - it reuses the filter-pill language already on /shop/, so it reads as part of
+    the same system rather than a second navigation
+
+  Under 700px it becomes a horizontally scrollable row, which is the standard
+  mobile pattern for category chips and avoids a second collapsing menu.
+*/}
+<nav class="collections-bar" aria-label="Collections">
+  <div class="shell">
+    <ul>
+      {CATEGORIES.map((c) => (
+        <li><a href={`/shop/?c=${c.id}`}>{c.label}</a></li>
+      ))}
+    </ul>
+  </div>
+</nav>

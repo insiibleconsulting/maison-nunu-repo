@@ -3,14 +3,15 @@ import Base from '../layouts/Base.astro';
 import ProductCard from '../components/ProductCard.astro';
 import MessagePreview from '../components/MessagePreview.astro';
 import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import ProductImage from '../components/ProductImage.astro';
 import { SITE } from '../config/site';
-import { featured, CATEGORIES } from '../data/catalog';
+import { featured, CATEGORIES, PRODUCTS } from '../data/catalog';
 import { generalLink } from '../lib/whatsapp';
 ---
 
 <Base>
   <!--
-    The hero is the thesis. Every other jewellery site opens with a product
+    The hero is the thesis. Every other jewelry site opens with a product
     photograph and a headline over it; this business runs on conversation, so
     the hero shows a conversation. It explains the entire model at a glance and
     sets the expectation for what the buttons do.
@@ -21,8 +22,8 @@ import { generalLink } from '../lib/whatsapp';
         <span class="eyebrow">{SITE.tagline}</span>
         <h1>Ask us about the one you like.</h1>
         <p class="lede">
-          Hand-finished jewellery made in small runs. There’s no checkout here — you message us about
-          a piece, and we help you get the details right before anything is made.
+          A selection of jewelry and accessories, chosen piece by piece. There’s no checkout here,
+          you message us about a piece, and we help you get the details right before anything ships.
         </p>
         <div class="hero__actions">
           <a class="btn btn--ghost" href="/shop/">Browse the collection</a>
@@ -45,7 +46,7 @@ import { generalLink } from '../lib/whatsapp';
         />
         <MessagePreview
           direction="in"
-          message={'Lovely choice — that one is made to order, so you get to pick the stone. Shall I send photos of what we have?'}
+          message={'Lovely choice — that one we order in, so you get to pick the stone. Shall I send photos of what’s available?'}
         />
         <MessagePreview direction="out" message={'Yes please. Do you have anything more blue?'} />
       </div>
@@ -56,8 +57,26 @@ import { generalLink } from '../lib/whatsapp';
     <div class="shell">
       <span class="eyebrow">Selected pieces</span>
       <h2 style="margin-top:0.6rem;">This season</h2>
+      {/*
+        One featured piece per collection, not every flagged piece.
+
+        Thirteen rows are flagged `featured` in the CSV, and rendering all of
+        them turned this section into a second shop page — three rings in a row
+        told a visitor nothing the shop page doesn't. Capping to one per
+        collection makes the same eight tiles demonstrate the breadth of the
+        range instead, which is the job this block is actually doing.
+
+        The flag stays meaningful: it decides WHICH piece represents its
+        collection here. Order follows CATEGORIES, so the row reads in the same
+        sequence as the nav and the footer.
+      */}
       <div class="grid">
-        {featured().map((product) => <ProductCard product={product} />)}
+        {
+          CATEGORIES
+            .map((c) => featured().find((p) => p.category === c.id))
+            .filter((p): p is NonNullable<typeof p> => Boolean(p))
+            .map((product) => <ProductCard product={product} />)
+        }
       </div>
     </div>
   </section>
@@ -66,8 +85,38 @@ import { generalLink } from '../lib/whatsapp';
     <div class="shell">
       <span class="eyebrow">By category</span>
       <h2 style="margin-top:0.6rem;">Find your thing</h2>
-      <div class="cats">
-        {CATEGORIES.map((c) => <a href={`/shop/?c=${c.id}`}>{c.label}</a>)}
+      {/*
+        Image tiles rather than a row of text links. Eight words told a visitor
+        the collections existed; eight photographs tell them what is in each one,
+        which is the actual question someone browsing is asking.
+
+        The photograph is borrowed from the first piece in the collection that
+        has one — no separate set of category images to source, and no second
+        thing to keep in sync when the catalog changes. If a collection ever has
+        no photographed piece, the tile falls back to the same "IMAGE PENDING"
+        line art the product grid uses rather than rendering an empty frame.
+      */}
+      <div class="cat-tiles">
+        {CATEGORIES.map((c) => {
+          const lead = PRODUCTS.find((p) => p.category === c.id && p.image);
+          const count = PRODUCTS.filter((p) => p.category === c.id).length;
+          return (
+            <a class="cat-tile" href={`/shop/?c=${c.id}`}>
+              <span class="cat-tile__frame">
+                <ProductImage
+                  image={lead?.image ?? null}
+                  name={c.label}
+                  sku={c.label}
+                  category={c.id}
+                />
+              </span>
+              <span class="cat-tile__label">
+                <span class="cat-tile__name">{c.label}</span>
+                <span class="cat-tile__count">{count} pieces</span>
+              </span>
+            </a>
+          );
+        })}
       </div>
     </div>
   </section>
@@ -95,8 +144,8 @@ import { generalLink } from '../lib/whatsapp';
         <li class="reveal">
           <h3>We sort the details</h3>
           <p>
-            Sizing, stones, engraving, delivery. Most of what we make needs one question answered
-            first, and a cart can’t ask it.
+            Sizing, stones, delivery, what’s actually in stock. Most of what we sell needs one
+            question answered first, and a cart can’t ask it.
           </p>
         </li>
       </ol>
@@ -105,10 +154,10 @@ import { generalLink } from '../lib/whatsapp';
 
   <section class="section">
     <div class="shell measure">
-      <h2 style="margin-bottom:var(--s-3);">Made in small runs.</h2>
+      <h2 style="margin-bottom:var(--s-3);">Chosen, not stocked.</h2>
       <p style="margin-bottom:var(--s-4);">
-        We work in batches small enough that we still know where every piece went. If we made it,
-        we’ll help you repair it.
+        We buy in small quantities from makers we rate, so the selection stays short enough that we
+        know every piece on it. Ask us anything about one before you commit.
       </p>
       <WhatsAppCTA href={generalLink()} label="Start a conversation" />
     </div>

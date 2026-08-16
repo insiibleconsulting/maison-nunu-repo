@@ -42,7 +42,33 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {/*
+      Favicons are PNG, not SVG. The supplied Icon.svg is a base64 raster in an
+      SVG wrapper — 241KB with none of the scaling a real vector would give — so
+      it would be a strictly worse favicon than a 2KB PNG.
+
+      16 and 32 cover browser tabs; 180 is what iOS uses when a visitor adds the
+      site to a home screen, which is a plausible thing for a returning customer
+      to do given the whole business runs on a phone.
+    */}
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!--
+      Marks the document as scripted before first paint. The mobile burger menu
+      collapses the nav, and it may only do that if there is JavaScript around
+      to open it again — so every collapsing rule is scoped to `.js`. With
+      scripting off the class never lands, the button stays hidden and the nav
+      stays permanently visible, which is exactly the layout that shipped before
+      the burger existed.
+
+      Inline and render-blocking on purpose. A deferred script would let the
+      full nav paint and then snap shut.
+    -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
   </head>
 
   <body>
@@ -60,6 +86,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <script>
       import '../scripts/lead-beacon';
       import '../scripts/reveal';
+      import '../scripts/nav';
     </script>
   </body>
 </html>

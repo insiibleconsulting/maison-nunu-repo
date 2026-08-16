@@ -40,9 +40,16 @@ export const IS_PLACEHOLDER_NUMBER = WA_NUMBER.length < 8;
 
 export const SITE = {
   brand: 'Maison Nunu',
-  tagline: 'Fine jewellery & accessories',
+  tagline: 'Fine jewelry & accessories',
+  /*
+   * Maison Nunu SELLS, it does not manufacture. Keep this copy — and every
+   * other line on the site — free of first-person making claims ("we make",
+   * "hand-finished by us", "if we made it"). Describing how a piece was made is
+   * fine; claiming Maison Nunu made it is not, and it is the kind of thing a
+   * customer can hold you to.
+   */
   description:
-    'Hand-finished jewellery and accessories, made in small runs. Every piece is one conversation away — message us and we will help you choose.',
+    'A chosen selection of jewelry and accessories, brought together piece by piece. Everything here is one conversation away — message us and we will help you choose.',
 
   /** Shown on the contact page and in the footer. Placeholder until confirmed. */
   email: 'hello@maisonnunu.com',

@@ -6,9 +6,13 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "npm run catalog:check && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "catalog": "node scripts/build-catalog.mjs",
+    "catalog:check": "node scripts/check-catalog.mjs",
+    "catalog:bootstrap": "node --no-warnings=ExperimentalWarning scripts/bootstrap-csv.mjs",
+    "product:add": "node scripts/add-product.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
@@ -17,6 +21,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "sharp": "^0.35.3",
     "typescript": "^6.0.3"
   }
 }
