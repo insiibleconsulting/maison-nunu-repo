@@ -31,3 +31,21 @@ pnpm-debug.log*
 .agents/
 .claude/
 skills-lock.json
+
+# ---------------------------------------------------------------------------
+# Design source binaries — keep them out of git history
+#
+# A 53MB Icon.psd was pushed on 15 Aug 2026 and GitHub warned about it (GH001).
+# Git stores every version of a binary forever, so one careless commit of a
+# layered PSD costs more than the entire rest of this repo, permanently.
+#
+# What stays tracked in assets/: .ai (true vectors, ~270KB each), .pdf, and the
+# web-ready .png/.webp/.svg/.jpg. That is everything the site or a printer
+# actually needs.
+#
+# What is excluded: the editable masters and the redundant archives. Keep those
+# in the client's own storage — they are design working files, not source code.
+# ---------------------------------------------------------------------------
+*.psd
+*.zip
+*.eps

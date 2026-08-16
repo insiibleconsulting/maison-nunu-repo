@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Block large files before they enter history.
+#
+# Why this exists: on 15 August 2026 a 53MB Icon.psd was committed and pushed,
+# and GitHub returned GH001. Git keeps every version of every binary forever, so
+# the cost is not the one push — it is that the object stays in the pack for the
+# life of the repo and every future clone pays for it.
+#
+# .gitignore already excludes *.psd, *.zip and *.eps. This catches the cases
+# .gitignore cannot: a new binary format nobody thought of, a `git add -f`, or a
+# large file that simply isn't one of those extensions.
+#
+# This lives in .githooks/ rather than .git/hooks/ so it is tracked and travels
+# with a clone. It only takes effect once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# To commit a large file deliberately:  git commit --no-verify
+
+LIMIT_MB=5
+LIMIT=$((LIMIT_MB * 1024 * 1024))
+fail=0
+
+# --diff-filter=d skips deletions; a file being removed has no blob to weigh.
+for f in $(git diff --cached --name-only --diff-filter=d); do
+    [ -f "$f" ] || continue
+    size=$(wc -c < "$f" | tr -d ' ')
+    if [ "$size" -gt "$LIMIT" ]; then
+        printf '  BLOCKED  %6.1f MB  %s\n' "$(echo "$size / 1048576" | bc -l)" "$f"
+        fail=1
+    fi
+done
+
+if [ "$fail" -eq 1 ]; then
+    cat <<EOF
+
+Commit refused: file(s) above ${LIMIT_MB}MB.
+
+Git stores binaries forever — removing the file in a later commit does not
+shrink the repo, so this is easier to prevent than to undo.
+
+  design source (.psd/.ai/.eps/.zip)  keep it in the client's storage, not here
+  a build artefact                    add it to .gitignore
+  genuinely needed in the repo        git commit --no-verify
+
+EOF
+    exit 1
+fi
+
+exit 0
