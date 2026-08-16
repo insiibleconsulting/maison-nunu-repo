@@ -134,9 +134,19 @@ photograph, copy not yet confirmed by the client, an oversized image.
 ## Deploying to Cloudflare Pages
 
 1. Connect this repo in Cloudflare Pages.
-2. Build command `npm run build`, output directory `dist`.
+2. **Build command `npm run build`, build output directory `dist`.** Both, not one.
 3. Add the environment variables above.
 4. `functions/` is picked up automatically as Pages Functions — no adapter, no config.
+5. Run `git config core.hooksPath .githooks` in your clone — it activates the large-file guard,
+   which git will not enable on its own.
+
+**If step 2 is skipped the deploy fails with a misleading error.** With no build command, Pages
+uploads the repository root instead of the built site and rejects it for containing a file over
+25 MiB — naming `assets/Brand style guide.pdf`. The PDF is not the problem; the missing build
+command is. A correct build produces `dist/` at ~8.5MB with no PDF in it.
+
+**Do not add a `wrangler.toml`/`wrangler.jsonc` to fix this.** For Pages that file becomes the source
+of truth and disables the dashboard fields it covers, including the encrypted secrets in step 3.
 
 Free-tier limits that apply: unlimited static requests and bandwidth; 500 builds/month; Pages
 Functions draw from the Workers quota of 100,000 requests/day.

@@ -457,6 +457,49 @@ Always rebuild afterwards so the test number doesn't linger in `dist/`.
 
 ---
 
+## The first deploy failed, and the error was a red herring
+
+16 August 2026. Cloudflare Pages rejected the deploy with:
+
+```
+Pages only supports files up to 25 MiB in size
+  assets/Brand style guide.pdf is 28.3 MiB in size
+```
+
+**The PDF was not the problem.** Three lines earlier in the same log:
+
+```
+No build command specified. Skipping build step.
+```
+
+The project had no build command and no output directory, so Pages skipped the build entirely and
+tried to upload the **repository root** as if it were the site — which is the only reason it ever
+looked inside `assets/`. A correct build produces `dist/` at 8.5MB across 150 files, largest file
+0.22MB, containing no PDF at all.
+
+The fix is dashboard configuration, and it is already in README "Deploying to Cloudflare Pages":
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+
+**Do NOT "fix" this by adding a `wrangler.toml` / `wrangler.jsonc`.** It looks like the tidy,
+version-controlled answer — the build log even says it checked for one — but for Pages that file
+*becomes the source of truth and disables the dashboard fields it covers*. `SHEET_WEBHOOK_URL` and
+`SHEET_SECRET` are dashboard-managed encrypted secrets; the only way to restore them under a wrangler
+file is to commit them, which is invariant 8. Cloudflare's own docs warn: "Do not deploy until you
+are confident that your Wrangler file is ready for production use."
+
+If a wrangler file is ever genuinely needed, generate it from the live project with
+`npx wrangler pages download config` rather than hand-writing one.
+
+**Residual tripwire:** `assets/Brand style guide.pdf` is 28.3MB and tracked. With the build settings
+correct it is never uploaded, because it is not in `dist/`. But if the output directory is ever blank
+again, it is the file that will fail the deploy first.
+
+---
+
 ## Verifying the Pages Function
 
 `astro dev` does **not** run `functions/` — `/api/lead` 404s there, which is expected and not a bug.
