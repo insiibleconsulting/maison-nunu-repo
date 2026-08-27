@@ -1,11 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import ProductCard from '../components/ProductCard.astro';
 import MessagePreview from '../components/MessagePreview.astro';
 import WhatsAppCTA from '../components/WhatsAppCTA.astro';
 import ProductImage from '../components/ProductImage.astro';
 import { SITE } from '../config/site';
-import { featured, CATEGORIES, PRODUCTS } from '../data/catalog';
+import { featured, CATEGORIES, PRODUCTS, formatPrice } from '../data/catalog';
 import { generalLink } from '../lib/whatsapp';
 ---
 
@@ -53,66 +52,51 @@ import { generalLink } from '../lib/whatsapp';
     </div>
   </section>
 
+  {/*
+    One section where there were two.
+
+    "This season" showed one featured piece per collection. "Find your thing"
+    showed one photograph per collection. Both were four-column grids of equal
+    tiles, stacked on each other, and between them plus the collections bar and
+    the footer the same eight collections were listed on this page four times.
+    Two grids doing one job is also exactly the shape a stock theme ships.
+
+    Merged, the block finally states the thing the shop actually claims: a short
+    selection, and a piece someone chose from each part of it. The photograph
+    goes to that piece, the name goes to the collection - two destinations, both
+    real, rather than one repeated.
+  */}
   <section class="section">
     <div class="shell">
-      <h2>This season</h2>
-      {/*
-        One featured piece per collection, not every flagged piece.
+      <h2>Eight collections, one pick from each.</h2>
 
-        Thirteen rows are flagged `featured` in the CSV, and rendering all of
-        them turned this section into a second shop page — three rings in a row
-        told a visitor nothing the shop page doesn't. Capping to one per
-        collection makes the same eight tiles demonstrate the breadth of the
-        range instead, which is the job this block is actually doing.
-
-        The flag stays meaningful: it decides WHICH piece represents its
-        collection here. Order follows CATEGORIES, so the row reads in the same
-        sequence as the nav and the footer.
-      */}
-      <div class="grid">
-        {
-          CATEGORIES
-            .map((c) => featured().find((p) => p.category === c.id))
-            .filter((p): p is NonNullable<typeof p> => Boolean(p))
-            .map((product) => <ProductCard product={product} />)
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="shell">
-      <h2>Find your thing</h2>
-      {/*
-        Image tiles rather than a row of text links. Eight words told a visitor
-        the collections existed; eight photographs tell them what is in each one,
-        which is the actual question someone browsing is asking.
-
-        The photograph is borrowed from the first piece in the collection that
-        has one — no separate set of category images to source, and no second
-        thing to keep in sync when the catalog changes. If a collection ever has
-        no photographed piece, the tile falls back to the same "IMAGE PENDING"
-        line art the product grid uses rather than rendering an empty frame.
-      */}
-      <div class="cat-tiles">
+      <div class="picks">
         {CATEGORIES.map((c) => {
-          const lead = PRODUCTS.find((p) => p.category === c.id && p.image);
+          const pick = featured().find((p) => p.category === c.id)
+            ?? PRODUCTS.find((p) => p.category === c.id && p.image);
           const count = PRODUCTS.filter((p) => p.category === c.id).length;
+          if (!pick) return null;
           return (
-            <a class="cat-tile" href={`/shop/?c=${c.id}`}>
-              <span class="cat-tile__frame">
+            <div class="pick">
+              <a class="pick__frame" href={`/shop/${pick.slug}/`}>
                 <ProductImage
-                  image={lead?.image ?? null}
-                  name={c.label}
-                  sku={c.label}
+                  image={pick.image}
+                  name={pick.name}
+                  sku={pick.sku}
                   category={c.id}
                 />
-              </span>
-              <span class="cat-tile__label">
-                <span class="cat-tile__name">{c.label}</span>
-                <span class="cat-tile__count">{count} pieces</span>
-              </span>
-            </a>
+              </a>
+              <div class="pick__text">
+                <div class="pick__row">
+                  <a class="pick__collection" href={`/shop/?c=${c.id}`}>{c.label}</a>
+                  <span class="pick__count">{count} pieces</span>
+                </div>
+                <p class="pick__piece">
+                  {pick.name}
+                  <span class="pick__price">{formatPrice(pick.price)}</span>
+                </p>
+              </div>
+            </div>
           );
         })}
       </div>

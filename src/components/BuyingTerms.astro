@@ -1,0 +1,71 @@
+---
+/*
+ * The three questions the checkout used to answer, placed where they are
+ * actually asked: directly above the button that hands the visitor to WhatsApp.
+ *
+ * Structured as a definition list with hairlines rather than cards. The site
+ * already groups facts this way in `.detail__list` and `.guide-list`, and a row
+ * of little cards would read as marketing furniture at the one moment the page
+ * needs to sound like a person telling you how it works.
+ *
+ * Every line is conditional. An unset value in COMMERCE renders no row at all,
+ * so the block shrinks to what is actually true instead of padding itself out
+ * with a plausible-sounding guess. See the comment on COMMERCE in config/site.ts.
+ */
+import { COMMERCE, COMMERCE_INCOMPLETE } from '../config/site';
+
+interface Props {
+  /** Product pages pass `compact` to drop the heading; /about/ renders it full. */
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+
+/*
+ * "Nothing is charged here" is not a policy claim, it is a fact about the
+ * architecture: there is no payment path in this codebase. It is safe to state
+ * unconditionally and it answers the cautious buyer's first fear directly.
+ */
+const rows = [
+  { term: 'Paying', detail: COMMERCE.payment },
+  { term: 'Getting it', detail: COMMERCE.handover },
+  { term: 'If it is wrong', detail: COMMERCE.exchange },
+].filter((r) => r.detail);
+---
+
+<div class="terms">
+  {!compact && <h2 class="terms__title subhead">How buying works</h2>}
+
+  <p class="terms__lead">
+    Nothing is charged on this site. The button opens a chat, and everything is
+    agreed there before anything changes hands.
+  </p>
+
+  {
+    rows.length > 0 && (
+      <dl class="terms__list">
+        {rows.map((r) => (
+          <div class="terms__row">
+            <dt>{r.term}</dt>
+            <dd>{r.detail}</dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+
+  {
+    /*
+     * Dev-only, and deliberately loud — same reasoning as the placeholder
+     * number banner. A silently short block is how "we never asked the client
+     * about payment" ships to production looking finished.
+     */
+    import.meta.env.DEV && COMMERCE_INCOMPLETE && (
+      <p class="terms__todo">
+        Unconfirmed: {[!COMMERCE.payment && 'payment', !COMMERCE.exchange && 'exchange']
+          .filter(Boolean)
+          .join(' and ')}. Ask the client, then fill in COMMERCE in config/site.ts.
+        This note is hidden in the production build.
+      </p>
+    )
+  }
+</div>

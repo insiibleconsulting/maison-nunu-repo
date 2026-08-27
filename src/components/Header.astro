@@ -72,7 +72,30 @@ const links = [
           </a>
         ))
       }
+
+      {/*
+        The collections again, inside the panel.
+
+        The bar below the masthead scrolls sideways on a phone, and at 390px it
+        shows about two and a half of eight chips. Anything past Rings was
+        effectively unlisted on the device most of this audience uses, which is
+        the exact problem the bar was added to solve. The fade on that row now
+        says "there is more"; this says "and here it all is", without asking
+        anyone to drag a row of chips.
+
+        Hidden on desktop, where the bar already shows all eight at once. A span
+        rather than a heading for the label: the panel sits between the h1 and
+        the page content, and a heading here would punch a hole in the document
+        outline on every page.
+      */}
+      <div class="nav__collections">
+        <span class="nav__label">Collections</span>
+        {CATEGORIES.map((c) => (
+          <a href={`/shop/?c=${c.id}`}>{c.label}</a>
+        ))}
+      </div>
     </nav>
+
   </div>
 </header>
 

@@ -4,6 +4,7 @@ import ProductImage from '../../components/ProductImage.astro';
 import WhatsAppCTA from '../../components/WhatsAppCTA.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import MessagePreview from '../../components/MessagePreview.astro';
+import BuyingTerms from '../../components/BuyingTerms.astro';
 import { PRODUCTS, formatPrice, type Product } from '../../data/catalog';
 import { productLink, productMessage } from '../../lib/whatsapp';
 import { SITE } from '../../config/site';
@@ -63,6 +64,8 @@ const link = productLink(product);
           <li>Reference {product.sku}</li>
         </ul>
 
+        <BuyingTerms compact />
+
         <div class="detail__cta">
           <MessagePreview
             label="You’ll send"
@@ -77,7 +80,8 @@ const link = productLink(product);
             wide
           />
           <p class="detail__note">
-            You can edit it before sending. We reply {SITE.hours.toLowerCase()}.
+            You can edit it before sending. We reply {SITE.hours}.
+            {' '}Not sure of your size? <a href="/guide/">Check the sizing guide</a>.
           </p>
         </div>
       </div>

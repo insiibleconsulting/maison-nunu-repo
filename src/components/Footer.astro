@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
       Same file as the header, deliberately — the browser fetches
       logo-horizontal.webp once and serves both from cache.
 
-      The lockup already carries the brand name AND the descriptor, so the <h4>
+      The lockup already carries the brand name AND the descriptor, so the heading
       and tagline that used to sit here would repeat both within a few pixels of
       the image — and would print "jewelry" directly beneath the lockup's
       "JEWELRY". The image replaces them rather than joining them.
@@ -33,14 +33,14 @@ const year = new Date().getFullYear();
     </div>
 
     <div>
-      <h4>Shop</h4>
+      <h2>Shop</h2>
       <ul>
         {CATEGORIES.map((c) => <li><a href={`/shop/?c=${c.id}`}>{c.label}</a></li>)}
       </ul>
     </div>
 
     <div>
-      <h4>Contact</h4>
+      <h2>Contact</h2>
       <ul>
         <li><a href="/contact/">Message us</a></li>
         <li><a href="/gifts/">Gifts</a></li>

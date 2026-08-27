@@ -31,6 +31,7 @@ const ref = refMatch ? refMatch[1] : null;
 
 <div class={`msg${direction === 'out' ? ' msg--out' : ''}`}>
   {label && <span class="msg__label">{label}</span>}
-  <span>{body}</span>
-  {ref && <><br /><span class="msg__ref">(ref: {ref})</span></>}
+  <span data-msg-body>{body}</span>
+  <br data-msg-br hidden={!ref} />
+  <span class="msg__ref" data-msg-ref hidden={!ref}>{ref ? `(ref: ${ref})` : ''}</span>
 </div>

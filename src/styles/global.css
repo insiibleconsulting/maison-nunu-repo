@@ -291,6 +291,20 @@ h3 {
   letter-spacing: -0.012em;
 }
 
+/* An h2 by document structure, sized like an h3.
+
+   Several pages sat their only section headings at h3 directly under the h1,
+   which reads as a hole to anyone navigating by heading level. Those headings
+   are h2 now, because that is what they are: siblings one level under the page
+   title. They should not jump to display scale just because their tag changed,
+   so level and type scale are separated here instead of being welded together
+   by the tag. Mirrors h3 exactly; keep the two in step if either moves. */
+.subhead {
+  font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+  font-variation-settings: "SOFT" 30, "WONK" 1, "opsz" 40, "wght" 460;
+  letter-spacing: -0.012em;
+}
+
 p {
   max-width: var(--measure);
 }
@@ -412,7 +426,9 @@ p {
 
 .collections-bar a {
   display: inline-block;
-  padding-block: 0.7rem;
+  /* 0.7rem gave a 43px box - one pixel under, which is the least useful place
+     to be. */
+  padding-block: 0.78rem;
   font-family: var(--sans);
   font-size: 0.76rem;
   letter-spacing: 0.06em;
@@ -437,6 +453,18 @@ p {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    /* The row scrolled, but it did not look like it did: the scrollbar is
+       hidden and the last visible chip ended cleanly at the shell gutter, so
+       the row read as complete and five of eight collections read as not
+       existing. Fading the final stretch means a chip is always visibly cut
+       off, which is the whole affordance.
+
+       The fade stays on at the end of the scroll, where there is nothing more
+       to reveal. That is the known cost of doing this without script, and it
+       is worth paying: a fade that slightly over-promises beats a row that
+       hides two entire product categories. */
+    -webkit-mask-image: linear-gradient(to right, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 86%, transparent 100%);
   }
 
   .collections-bar .shell::-webkit-scrollbar {
@@ -490,6 +518,7 @@ p {
   border-radius: var(--radius);
   color: var(--ink);
   cursor: pointer;
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .nav-toggle__bars,
@@ -586,6 +615,7 @@ p {
     justify-self: end;
   }
 
+
   /* The panel is positioned against .site-header — which is sticky, and so is
      already a containing block — rather than against .shell, so it spans the
      full width of the bar instead of stopping at the shell gutters. */
@@ -629,6 +659,56 @@ p {
     border-bottom-color: var(--line);
     font-variation-settings: "wght" 600;
   }
+
+  /* Thirteen rows can outrun a short viewport, so the panel scrolls rather
+     than running off the bottom of the screen. 100dvh minus the sticky header
+     and the collections bar it sits under. */
+  .js .nav {
+    /* nowrap is load-bearing, not tidiness. The no-JS rule above sets
+       `flex-wrap: wrap` for the stacked row, and it still applies here. Give a
+       wrapping COLUMN a bounded height and it stops scrolling and starts
+       laying out in columns instead: the five primary links ended up beside the
+       eight collections, in two columns, on a 390px screen. */
+    flex-wrap: nowrap;
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .js .nav__collections {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Set below the primary links: same row height for the touch target, smaller
+     and lighter type so the panel still reads as five things and then a list,
+     not as thirteen equal destinations. */
+  .js .nav__collections a {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .js .nav__collections a:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* Desktop already shows all eight in the bar under the masthead, so the panel
+   copy would be a duplicate. Declared outside the media query so the default is
+   hidden and the mobile rule is the exception, not the other way round. */
+.nav__collections {
+  display: none;
+}
+
+.nav__label {
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  font-variation-settings: "wght" 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding-top: var(--s-3);
+  padding-bottom: 0.35rem;
 }
 
 /* ---------- buttons ---------- */
@@ -650,7 +730,8 @@ p {
   color: #fff;
   cursor: pointer;
   min-height: 44px;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .btn:hover {
@@ -679,6 +760,45 @@ p {
   border-color: var(--line-strong);
   color: var(--muted);
   cursor: not-allowed;
+}
+
+/* ---------- press feedback ----------
+
+   There was no `:active` state anywhere on this site. On a phone there is no
+   hover, so nothing confirmed a tap at all — and the most important tap here
+   hands off to WhatsApp, where the visitor watches a completely still page for
+   the moment it takes another app to open. This is the acknowledgement that
+   the interface heard them.
+
+   Scale only, and small. Press feedback belongs in the 100-160ms band, and
+   these are controls people scan and tap several times in a visit, which is a
+   frequency tier that allows near-imperceptible motion or none. 0.98 is felt
+   rather than seen; the burger takes 0.94 because a 22px icon needs more
+   proportional travel to register the same amount.
+
+   The curve is the one the other twelve transitions in this file already use.
+   A new easing token here would fork the vocabulary for three rules. */
+.btn:not(.btn--disabled):active {
+  transform: scale(0.98);
+}
+
+/* Background as well as scale: it is the half of the feedback that survives
+   reduced motion, and on touch it replaces the hover state that never fires. */
+.btn:not(.btn--disabled):active {
+  background: var(--burgundy-deep);
+  border-color: var(--burgundy-deep);
+}
+
+.btn--ghost:not(.btn--disabled):active {
+  background: var(--burgundy-soft);
+}
+
+.cats a:active {
+  transform: scale(0.97);
+}
+
+.nav-toggle:active {
+  transform: scale(0.94);
 }
 
 .btn svg {
@@ -822,8 +942,20 @@ p {
   margin-top: var(--s-5);
 }
 
-.product {
+/* The shop grid wraps every card in a plain div carrying the filter data
+   attributes. That wrapper is the grid item and stretches to the row; the card
+   inside it did not, so cards whose name wrapped to two lines pushed their
+   button below the ones whose name fit on one, and each row of the grid ended
+   ragged. Both now fill the cell, so the buttons line up across a row whatever
+   the names do. */
+.grid > * {
   display: flex;
+}
+
+.product {
+  position: relative;
+  display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 0.7rem;
 }
@@ -847,25 +979,9 @@ p {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.product__frame:hover img,
-.product__frame:hover svg {
+.product:hover .product__frame img,
+.product:hover .product__frame svg {
   transform: scale(1.03);
-}
-
-.product__tag {
-  position: absolute;
-  top: 0.6rem;
-  left: 0.6rem;
-  font-size: 0.62rem;
-  font-variation-settings: "wght" 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  background: var(--brass-soft);
-  border: 1px solid rgba(117, 84, 23, 0.32);
-  color: var(--brass);
-  padding: 0.22rem 0.5rem;
-  border-radius: var(--radius);
-  backdrop-filter: blur(6px);
 }
 
 .product__row {
@@ -897,6 +1013,43 @@ p {
 
 .product__name:hover {
   color: var(--burgundy-deep);
+}
+
+/* Stretched link: the name is the only anchor, and this pseudo-element gives it
+   the whole card as a hit area. One tab stop per product instead of two, and
+   the link's accessible name is the piece name rather than an aria-label
+   repeating it. */
+.product__name::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+}
+
+/* The WhatsApp button has to sit above the stretched link or the card swallows
+   its clicks. */
+.product .btn {
+  position: relative;
+  z-index: 1;
+}
+
+/* Availability, promoted off the photograph and into the record. Set in the
+   sans at caption size so it reads as a fact about the piece rather than a
+   badge competing with the name. */
+.product__meta {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-top: -0.25rem;
+}
+
+/* Brass marks the wait. It is the only place the second accent appears in the
+   grid, which is what makes it legible as a distinction at a glance. */
+.product__flag {
+  color: var(--brass);
+  font-variation-settings: "wght" 600;
 }
 
 .product__blurb {
@@ -986,43 +1139,38 @@ p {
 
 /* ---------- category filter ---------- */
 
-/* ---------- homepage collection tiles ----------
-   Distinct from `.cats` above, which is the pill filter row on /shop/ and is
-   still in use — these two must not be merged.
+/* ---------- homepage picks ----------
 
-   The frame is 1/1 where product cards are 4/5, so a collection tile never
-   reads as a product at a glance. Hover borrows the product card's scale(1.03)
-   so the whole grid behaves like one system. */
-.cat-tiles {
+   Replaces .cat-tiles and the featured product grid that used to sit above it.
+   Eight cells, one per collection, each carrying a chosen piece AND the way
+   into the rest of that collection.
+
+   Square frames, where the product grid on /shop/ is 4:5. That difference is
+   deliberate and predates this block: a collection tile should never read as a
+   product card at a glance, because it does not behave like one. */
+.picks {
   margin-top: var(--s-4);
   display: grid;
-  gap: clamp(0.7rem, 1.6vw, 1.1rem);
-  /* Fixed column counts, not auto-fill. There are exactly eight collections
-     and that number is fixed by the client (invariant 5b), so the grid can be
-     cut to divide it evenly: 4+4 at desktop, 3+3+2 is never reached, 2x4 on
-     narrow. auto-fill picked five columns at ~1200px and left the second row
-     three tiles wide with two dead slots beside it, which read as a loading
-     failure rather than as a layout. If the eight ever becomes a nine, this
-     wants revisiting, not reverting to auto-fill. */
+  gap: clamp(0.9rem, 2vw, 1.4rem) clamp(0.7rem, 1.6vw, 1.1rem);
+  /* Eight items, so the grid is cut to divide them evenly: 4+4, or 2x4 narrow.
+     auto-fill picked five columns at ~1200px and left a ragged second row. */
   grid-template-columns: repeat(2, 1fr);
 }
 
 @media (min-width: 560px) {
-  .cat-tiles {
+  .picks {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-.cat-tile {
-  text-decoration: none;
-  color: inherit;
+.pick {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.55rem;
   min-width: 0;
 }
 
-.cat-tile__frame {
+.pick__frame {
   display: block;
   aspect-ratio: 1 / 1;
   overflow: hidden;
@@ -1031,7 +1179,7 @@ p {
   background: var(--surface);
 }
 
-.cat-tile__frame :is(img, svg) {
+.pick__frame :is(img, svg) {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1039,11 +1187,28 @@ p {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.cat-tile:hover .cat-tile__frame :is(img, svg) {
+.pick:hover .pick__frame :is(img, svg) {
   transform: scale(1.03);
 }
 
-.cat-tile__label {
+/* The link stretches over this block, not over the tile: the photograph above
+   is its own link to the piece, and two overlapping targets with different
+   destinations is worse than a small one. */
+.pick__text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-block: 0.35rem;
+}
+
+.pick__collection::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.pick__row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -1051,31 +1216,46 @@ p {
   min-width: 0;
 }
 
-.cat-tile__name {
+.pick__collection {
   font-family: var(--display);
   font-size: 1rem;
   font-variation-settings: "wght" 500, "opsz" 24;
   color: var(--ink);
+  text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: border-color 0.2s ease;
+  min-width: 0;
 }
 
-.cat-tile:hover .cat-tile__name {
+.pick:hover .pick__collection {
   border-bottom-color: var(--burgundy);
 }
 
-.cat-tile__count {
+.pick__count {
   font-family: var(--sans);
   font-size: 0.72rem;
   color: var(--faint);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+  flex: none;
 }
 
-.cat-tile:focus-visible {
-  outline: 2px solid var(--burgundy);
-  outline-offset: 3px;
-  border-radius: var(--radius);
+/* The pick itself, named rather than just pictured. Without this the tile is a
+   category thumbnail like any other shop's; with it the section says a person
+   chose this one. */
+.pick__piece {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.45;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+}
+
+.pick__price {
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- guide page ---------- */
@@ -1195,10 +1375,11 @@ p {
   border: 1px solid var(--line-interactive);
   border-radius: 100px;
   color: var(--ink-soft);
-  min-height: 38px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
-  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease,
+    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .cats a:hover {
@@ -1210,6 +1391,65 @@ p {
   border-color: var(--burgundy);
   background: var(--burgundy);
   color: #fff;
+}
+
+/* The second axis. Set in the sans at a smaller size and left unfilled when
+   active, so the two rows never read as one thirteen-item list and the eye can
+   tell which axis it is looking at. Collection is the primary cut; price is the
+   qualifier, and the styling says so. */
+.cats--price {
+  margin-top: 0.45rem;
+}
+
+.cats--price a {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  letter-spacing: 0.01em;
+  border-color: var(--line-strong);
+  color: var(--muted);
+}
+
+.cats--price a[aria-current="true"] {
+  background: transparent;
+  border-color: var(--burgundy);
+  color: var(--burgundy-deep);
+  font-variation-settings: "wght" 600;
+}
+
+/* The count is the thing that was missing: the grid could drop to twelve of
+   seventy-five with nothing on the page saying so. */
+.filter-status {
+  margin-top: var(--s-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  min-height: 1.2rem;
+}
+
+.filter-status a {
+  color: var(--burgundy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-status a:hover {
+  color: var(--burgundy-deep);
+}
+
+/* `display: inline-flex` above outranks the UA stylesheet's `[hidden] {
+   display: none }`, so without this the clear link stays visible with nothing
+   to clear. Any author display rule on an element that also toggles `hidden`
+   needs this pair. */
+.filter-status a[hidden] {
+  display: none;
 }
 
 /* ---------- steps (a genuine sequence, so numbered) ---------- */
@@ -1259,6 +1499,104 @@ p {
 .steps p {
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+/* The one colour on the site that was never authored: the UA default
+   #757575 measures 4.46:1 on the input fill, 0.04 under AA. --muted is the
+   token already used for secondary text and clears it at 5.18:1. */
+::placeholder {
+  color: var(--muted);
+  opacity: 1; /* Firefox dims placeholders by default; the token is the value. */
+}
+
+/* ---------- buying terms ---------- */
+
+/* Sits between the spec list and the message preview on a product page, and
+   again as a section on /about/. Hairline rows, not cards: this is the page
+   speaking plainly, and a card grid here would read as marketing. */
+.terms {
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+
+/* On a product page the spec list already ends on a hairline, so the block's
+   own top border drew a second one 1.5rem below it with nothing in between -
+   an empty ruled row. The list's closing border is the separator here. */
+.detail__body .terms {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.terms__title {
+  margin-bottom: var(--s-2);
+}
+
+.terms__lead {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  max-width: 52ch;
+}
+
+.terms__list {
+  margin-top: var(--s-3);
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* One rule between rows rather than a box around each. The last row carries no
+   border so the block ends on content, not on a line hanging in space. */
+.terms__row {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 0.4rem 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.terms__row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.terms__row dt {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-variation-settings: "wght" 600;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  padding-top: 0.15rem;
+}
+
+.terms__row dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+/* Stack under 560px: a 8.5rem label column leaves too little for the value on
+   a narrow phone, and the term reads fine as a line above its own answer. */
+@media (max-width: 560px) {
+  .terms__row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .terms__row dt {
+    padding-top: 0;
+  }
+}
+
+/* Dev-only gap notice. Brass rather than burgundy so it reads as "unfinished",
+   not as brand accent, and matches the placeholder-number banner. */
+.terms__todo {
+  margin-top: var(--s-3);
+  padding: 0.6rem 0.75rem;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--brass);
+  background: var(--brass-soft);
+  border-radius: var(--radius);
 }
 
 /* ---------- placeholder banner ---------- */
@@ -1371,7 +1709,15 @@ p {
   }
 }
 
-.site-footer h4 {
+/* h2, not h4. These are the footer landmark's own sections, and h2 is the only
+   level that never skips here: pages end on h1, h2 or h3 before the footer
+   begins, and stepping back UP a level is always valid. As an h4 these
+   inherited the body sans by accident; as an h2 they would inherit the display
+   face and its tight display leading, so both are stated rather than assumed. */
+.site-footer h2 {
+  font-family: var(--sans);
+  line-height: 1.3;
+  letter-spacing: 0.15em;
   font-size: 0.68rem;
   font-variation-settings: "wght" 600;
   letter-spacing: 0.15em;
@@ -1385,11 +1731,25 @@ p {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
 }
 
 .site-footer a {
   text-decoration: none;
+}
+
+/* The column links were 14-15px boxes on a 26-27px pitch: legal via the WCAG
+   2.2 spacing exception, and nowhere near the 44px this site holds everywhere
+   else. Padding rather than a min-height so the text keeps its own rhythm and
+   the target grows around it; the list gap goes to zero because the padding is
+   now doing that job, which leaves the visual spacing where it was. */
+.site-footer li a {
+  display: block;
+  /* 0.62rem measured 42px - two short. Only the list links get this: Privacy
+     and the build credit sit inline inside footer sentences, where WCAG 2.5.8
+     exempts targets whose size is constrained by the line-height of the text
+     around them, and boxing them out to 44px would break the sentence they
+     belong to. */
+  padding-block: 0.72rem;
 }
 
 .site-footer a:hover {
@@ -1473,13 +1833,24 @@ p {
   animation-delay: 1.15s;
 }
 
-.reveal {
+/* Scoped to `.js` for the same reason the collapsing nav rules are, and the
+   stakes here are higher. Only `reveal.ts` ever sets `.is-visible`, so an
+   unscoped `opacity: 0` means that if that module does not run - a dropped
+   request on a metered connection, a data-saver proxy, a carrier filter,
+   scripting off - the shop renders a header, a heading, and 75 invisible
+   products. Every wa.me link is still there, correct, and unreachable.
+
+   `js` lands render-blocking in Base.astro before first paint, so scoping
+   costs no flash. With scripting off the class never arrives, the rule never
+   applies, and the grid degrades to the static layout that shipped before the
+   reveal existed. Do not unscope this. */
+.js .reveal {
   opacity: 0;
   transform: translateY(14px);
   transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.reveal.is-visible {
+.js .reveal.is-visible {
   opacity: 1;
   transform: none;
 }
@@ -1495,6 +1866,21 @@ p {
 
   .reveal {
     opacity: 1;
+    transform: none;
+  }
+
+  /* Press feedback keeps working here, it just stops moving.
+
+     The blanket rule above flattens transition-duration to 0.01ms, which would
+     not have removed the press scale — it would have made it snap, which is a
+     jump rather than an animation and is worse than either option. Dropping the
+     transform leaves the background change, which is a colour shift rather than
+     positional motion, so the tap is still acknowledged for someone who has
+     asked the system for less movement. Reduced motion means gentler, not
+     none. */
+  .btn:not(.btn--disabled):active,
+  .cats a:active,
+  .nav-toggle:active {
     transform: none;
   }
 }

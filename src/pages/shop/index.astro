@@ -4,6 +4,18 @@ import ProductCard from '../../components/ProductCard.astro';
 import WhatsAppCTA from '../../components/WhatsAppCTA.astro';
 import { PRODUCTS, CATEGORIES } from '../../data/catalog';
 import { generalLink } from '../../lib/whatsapp';
+
+/*
+ * Labels are deliberately identical to the band cards on /gifts/. That page is
+ * where most people meet a price band, and arriving here to find the same words
+ * is what tells them the filter they chose actually carried across.
+ */
+const BANDS = [
+  { id: 'under-75', label: 'Under 75 000' },
+  { id: 'under-120', label: '75 000 - 120 000' },
+  { id: 'under-200', label: '120 000 - 200 000' },
+  { id: 'over-200', label: '200 000 and above' },
+];
 ---
 
 <Base
@@ -22,12 +34,35 @@ import { generalLink } from '../../lib/whatsapp';
       <!--
         Filtering is client-side over the already-rendered grid: the whole catalog
         is small enough that shipping it once beats a round trip per category, and
-        it keeps the page fully static. Links stay crawlable and shareable via ?c=.
+        it keeps the page fully static. Links stay crawlable and shareable via ?c=
+        and ?p=, and every pill is a real href so the page still navigates with
+        scripting off.
       -->
-      <div class="cats" role="group" aria-label="Filter by category">
+      <div class="cats" role="group" aria-label="Filter by collection">
         <a href="/shop/" data-filter="all" aria-current="true">All</a>
         {CATEGORIES.map((c) => <a href={`/shop/?c=${c.id}`} data-filter={c.id}>{c.label}</a>)}
       </div>
+
+      <!--
+        The price row used to not exist. ?p= was reachable only from the band
+        cards on /gifts/, so a gift buyer landed on a grid showing 12 of 75
+        pieces with "All" still lit and no way to see, change or clear what had
+        been applied to it.
+      -->
+      <div class="cats cats--price" role="group" aria-label="Filter by price">
+        <a href="/shop/" data-band="" aria-current="true">Any price</a>
+        {BANDS.map((b) => <a href={`/shop/?p=${b.id}`} data-band={b.id}>{b.label}</a>)}
+      </div>
+
+      <!--
+        aria-live sits on the count rather than only on the empty state: the
+        useful thing to announce after filtering is how many pieces remain, not
+        just the one case where none do.
+      -->
+      <p class="filter-status" id="filter-status" aria-live="polite">
+        <span id="filter-count"></span>
+        <a href="/shop/" id="filter-clear" hidden>Clear filters</a>
+      </p>
 
       <div class="grid" id="product-grid">
         {
@@ -41,12 +76,12 @@ import { generalLink } from '../../lib/whatsapp';
 
       <!-- aria-live so filtering announces the result to a screen reader; the
            visible grid change alone is silent. -->
-      <p id="empty-state" hidden class="meta" style="margin-top:2rem;" aria-live="polite">
-        Nothing in this category yet.
+      <p id="empty-state" hidden class="meta" style="margin-top:2rem;">
+        <span id="empty-text"></span>
       </p>
 
       <div style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--line);">
-        <h3 style="margin-bottom:0.6rem;">Looking for something you can’t see?</h3>
+        <h2 class="subhead" style="margin-bottom:0.6rem;">Looking for something you can’t see?</h2>
         <p style="margin-bottom:1.2rem; color:var(--muted);">
           The site shows what we carry, not everything we can get. Tell us what you have in mind and
           we’ll find out whether we can source it.
@@ -60,7 +95,11 @@ import { generalLink } from '../../lib/whatsapp';
 <script>
   const grid = document.getElementById('product-grid');
   const empty = document.getElementById('empty-state');
-  const links = document.querySelectorAll<HTMLAnchorElement>('[data-filter]');
+  const emptyText = document.getElementById('empty-text');
+  const count = document.getElementById('filter-count');
+  const clear = document.getElementById('filter-clear');
+  const catLinks = document.querySelectorAll<HTMLAnchorElement>('[data-filter]');
+  const bandLinks = document.querySelectorAll<HTMLAnchorElement>('[data-band]');
 
   // Price bands, mirroring the ones on /gifts/. Kept here rather than imported
   // because this script is inlined into the page and catalog.ts must stay free
@@ -72,8 +111,14 @@ import { generalLink } from '../../lib/whatsapp';
     'over-200': [200000, Infinity],
   };
 
+  const bandLabel = (id: string) =>
+    document.querySelector<HTMLAnchorElement>(`[data-band="${id}"]`)?.textContent?.trim() ?? '';
+
+  const catLabel = (id: string) =>
+    document.querySelector<HTMLAnchorElement>(`[data-filter="${id}"]`)?.textContent?.trim() ?? '';
+
   function apply(category: string, band: string) {
-    if (!grid || !empty) return;
+    if (!grid || !empty || !emptyText || !count || !clear) return;
     let visible = 0;
     const range = BANDS[band];
 
@@ -87,10 +132,38 @@ import { generalLink } from '../../lib/whatsapp';
       if (match) visible++;
     }
 
-    empty.hidden = visible > 0;
-    links.forEach((l) => {
+    // Both rows reflect state, so "All" can no longer sit lit while a band is
+    // quietly removing two thirds of the grid.
+    catLinks.forEach((l) => {
       l.setAttribute('aria-current', l.dataset.filter === category ? 'true' : 'false');
     });
+    bandLinks.forEach((l) => {
+      l.setAttribute('aria-current', (l.dataset.band ?? '') === band ? 'true' : 'false');
+    });
+
+    const filtered = category !== 'all' || Boolean(band);
+    const parts = [
+      `${visible} ${visible === 1 ? 'piece' : 'pieces'}`,
+      category !== 'all' ? catLabel(category) : '',
+      band ? bandLabel(band) : '',
+    ].filter(Boolean);
+
+    count.textContent = parts.join(' \u00b7 ');
+    clear.hidden = !filtered;
+
+    // Name the filter that actually emptied the grid. The old copy said
+    // "Nothing in this category yet" even when a price band was the cause,
+    // which told a gift buyer the collection was empty when it was not.
+    empty.hidden = visible > 0;
+    if (visible === 0) {
+      if (category !== 'all' && band) {
+        emptyText.textContent = `No ${catLabel(category).toLowerCase()} in this price range. Try another band, or ask us to source it.`;
+      } else if (band) {
+        emptyText.textContent = `Nothing in this price range yet. Try another band, or ask us to source it.`;
+      } else {
+        emptyText.textContent = `Nothing in this collection yet.`;
+      }
+    }
   }
 
   // Deep links work on first load and on back/forward:
@@ -102,16 +175,46 @@ import { generalLink } from '../../lib/whatsapp';
     apply(q.get('c') ?? 'all', q.get('p') ?? '');
   }
 
-  links.forEach((link) => {
+  function current() {
+    const q = new URLSearchParams(window.location.search);
+    return { category: q.get('c') ?? 'all', band: q.get('p') ?? '' };
+  }
+
+  function go(category: string, band: string) {
+    const q = new URLSearchParams();
+    if (category !== 'all') q.set('c', category);
+    if (band) q.set('p', band);
+    const qs = q.toString();
+    history.pushState({ category, band }, '', qs ? `/shop/?${qs}` : '/shop/');
+    apply(category, band);
+  }
+
+  /*
+   * Each row now changes only its own axis. This reverses an earlier decision
+   * that cleared the price band whenever a collection was clicked, on the
+   * reasoning that two filters the visitor "did not knowingly combine" would
+   * look broken. That held while the band was invisible. Now that it is a lit
+   * pill with a count beside it, silently dropping it is the surprising
+   * behaviour: someone who chose a budget on /gifts/ and then narrowed to Rings
+   * was shown rings they had already said were too expensive.
+   */
+  catLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
       event.preventDefault();
-      const category = link.dataset.filter ?? 'all';
-      // Clicking a collection clears any price band — two filters the visitor
-      // did not knowingly combine would look like a broken grid.
-      const url = category === 'all' ? '/shop/' : `/shop/?c=${category}`;
-      history.pushState({ category }, '', url);
-      apply(category, '');
+      go(link.dataset.filter ?? 'all', current().band);
     });
+  });
+
+  bandLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      go(current().category, link.dataset.band ?? '');
+    });
+  });
+
+  document.getElementById('filter-clear')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    go('all', '');
   });
 
   window.addEventListener('popstate', fromUrl);

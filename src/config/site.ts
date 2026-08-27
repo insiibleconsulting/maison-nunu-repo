@@ -51,8 +51,8 @@ export const SITE = {
   description:
     'A chosen selection of jewelry and accessories, brought together piece by piece. Everything here is one conversation away. Message us and we will help you choose.',
 
-  /** Shown on the contact page and in the footer. Placeholder until confirmed. */
-  email: 'hello@maisonnunu.com',
+  /** Shown on the contact page and in the footer. Confirmed by the client. */
+  email: 'info@maisonnunu.com',
   location: 'By appointment',
 
   /** Business hours copy, mirrored in the WhatsApp Business away message. */
@@ -63,6 +63,41 @@ export const SITE = {
     tiktok: '',
   },
 } as const;
+
+/*
+ * How buying actually works — the questions a checkout used to answer.
+ *
+ * Removing the cart removed the place where payment options appear, delivery
+ * is calculated, and a returns link sits under the buy button. Nothing
+ * replaced it, so the site went silent on all three at exactly the moment a
+ * visitor decides to spend 145 000 FCFA with a phone number they do not know.
+ *
+ * THE RULE HERE IS THE SAME ONE `IS_PLACEHOLDER_NUMBER` ENFORCES: an empty
+ * string renders NOTHING rather than something plausible. Do not "helpfully"
+ * fill these in to make the block look complete. A guessed payment method or
+ * an invented returns window is a promise-shaped claim a customer can hold the
+ * business to — the exact failure invariant 5c exists to prevent.
+ *
+ * `handover` is confirmed: fulfilment is in person, by appointment, arranged
+ * inside the WhatsApp thread. `payment` and `exchange` are NOT confirmed and
+ * are deliberately blank until the client says the words.
+ */
+export const COMMERCE = {
+  /** CONFIRMED. How the piece reaches the buyer. */
+  handover: 'In person, by appointment. We agree a time and a place in the chat.',
+
+  /** UNCONFIRMED — ask the client which methods they actually accept. */
+  payment: '',
+
+  /** UNCONFIRMED — ask the client what happens when a size is wrong. */
+  exchange: '',
+} as const;
+
+/**
+ * True when the client has not yet supplied every commerce fact. Used to show
+ * the gap in dev rather than letting a half-filled block ship unnoticed.
+ */
+export const COMMERCE_INCOMPLETE = !COMMERCE.payment || !COMMERCE.exchange;
 
 /** Default message used by CTAs that are not tied to a specific product. */
 export const GENERAL_ENQUIRY = 'Hi Maison Nunu! I have a question about your pieces.';

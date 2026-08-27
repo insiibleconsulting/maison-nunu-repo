@@ -14,29 +14,55 @@ const href = `/shop/${product.slug}/`;
 ---
 
 <article class="product reveal">
-  <a class="product__frame" href={href} aria-label={product.name}>
+  {/*
+    The frame is no longer a link. It and the product name used to be two
+    anchors to the same href, which gave /shop/ 225 focusable elements for 75
+    products: every card cost a keyboard user two tab stops to pass. The name
+    carries the link now and stretches over the whole card (see .product__name
+    in global.css), so the entire tile is still clickable, there is one tab stop
+    per product, and the accessible name is the visible text rather than an
+    aria-label duplicating it.
+  */}
+  <div class="product__frame">
     <ProductImage
       image={product.image}
       name={product.name}
       sku={product.sku}
       category={product.category}
     />
-    {/*
-      "Ordered in", not "made to order" — Maison Nunu resells rather than
-      manufactures, so the wait is a supplier lead time, not bench time. The
-      `madeToOrder` field name is kept as-is: renaming it would mean a CSV
-      column rename and a regeneration for a label that only exists here.
-    */}
-    {product.madeToOrder && <span class="product__tag">Ordered in</span>}
-  </a>
+  </div>
 
   <div class="product__row">
     <a class="product__name" href={href}>{product.name}</a>
     <span class="price">{formatPrice(product.price)}</span>
   </div>
 
+  {/*
+    "Ordered in", not "made to order" — Maison Nunu resells rather than
+    manufactures, so the wait is a supplier lead time, not bench time. The
+    `madeToOrder` field name is kept as-is: renaming it would mean a CSV column
+    rename and a regeneration for a label that only exists here.
+
+    It sits in the meta line rather than on the photograph. As an overlay its
+    legibility depended on whatever image happened to be underneath — on the
+    warm gold shots it was close to unreadable — and a tag floated over product
+    photography is stock-template furniture. Down here it is what it actually
+    is: a fact about availability, next to the other fact about buying the
+    piece.
+  */}
+  <p class="product__meta">
+    {product.madeToOrder ? <span class="product__flag">Ordered in</span> : <span>In stock</span>}
+  </p>
+
   <p class="product__blurb">{product.blurb}</p>
 
+  {/*
+    Kept, deliberately. Seventy-five near-identical buttons on one page reads as
+    repetition, but each one opens a different pre-filled conversation, which is
+    the entire product. Removing it would be a decision about how this business
+    sells, not a design cleanup. z-index in the CSS keeps it above the stretched
+    card link.
+  */}
   <WhatsAppCTA
     href={productLink(product)}
     label="Enquire on WhatsApp"
@@ -45,5 +71,4 @@ const href = `/shop/${product.slug}/`;
     variant="ghost"
     wide
   />
-
 </article>

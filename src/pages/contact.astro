@@ -11,7 +11,8 @@ import Base from '../layouts/Base.astro';
 import WhatsAppCTA from '../components/WhatsAppCTA.astro';
 import { SITE, WA_NUMBER, IS_PLACEHOLDER_NUMBER } from '../config/site';
 import { generalLink } from '../lib/whatsapp';
-import { PRODUCTS } from '../data/catalog';
+import { PRODUCTS, CATEGORIES } from '../data/catalog';
+import MessagePreview from '../components/MessagePreview.astro';
 ---
 
 <Base title="Contact" description={`Get in touch with ${SITE.brand} on WhatsApp.`}>
@@ -32,9 +33,24 @@ import { PRODUCTS } from '../data/catalog';
 
         <div class="field">
           <label for="piece">Which piece? <span class="optional">optional</span></label>
+          {/*
+            Grouped by collection. As one flat list this was 75 product names in
+            a single native wheel, which asks the visitor to recall a name they
+            saw once with no photograph and no order to scan by. The collection
+            is already on every record, so the grouping costs nothing.
+          */}
           <select id="piece" name="piece">
             <option value="">Not sure yet / something else</option>
-            {PRODUCTS.map((p) => <option value={p.sku} data-name={p.name}>{p.name}</option>)}
+            {CATEGORIES.map((c) => {
+              const inGroup = PRODUCTS.filter((p) => p.category === c.id);
+              return inGroup.length ? (
+                <optgroup label={c.label}>
+                  {inGroup.map((p) => (
+                    <option value={p.sku} data-name={p.name}>{p.name}</option>
+                  ))}
+                </optgroup>
+              ) : null;
+            })}
           </select>
         </div>
 
@@ -50,7 +66,23 @@ import { PRODUCTS } from '../data/catalog';
           <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
         </div>
 
+        {/*
+          The preview, finally. This was the one handoff on the site that asked
+          for more than any other - a name, a written question - and gave back
+          less reassurance than a product page that asks for nothing. It renders
+          server-side with the empty-form message, so it says something true
+          with scripting off, and the script below rewrites it from the SAME
+          function that builds the URL. If those two ever drift, the bubble
+          stops being honest, which is the only thing it has.
+        */}
+        <div id="preview">
+          <MessagePreview label="You’ll send" message="Hi Maison Nunu!" />
+        </div>
+
         <button class="btn btn--wide" type="submit" disabled={IS_PLACEHOLDER_NUMBER}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23z" />
+          </svg>
           <span data-btn-text
             >{IS_PLACEHOLDER_NUMBER ? 'WhatsApp number not configured' : 'Continue to WhatsApp'}</span
           >
@@ -63,12 +95,12 @@ import { PRODUCTS } from '../data/catalog';
       </form>
 
       <div class="alt">
-        <h3 style="margin-bottom:0.7rem;">Rather just message?</h3>
+        <h2 class="subhead" style="margin-bottom:0.7rem;">Rather just message?</h2>
         <WhatsAppCTA href={generalLink()} label="Open WhatsApp" variant="ghost" />
       </div>
 
       <div class="alt">
-        <h3 style="margin-bottom:0.7rem;">Other ways</h3>
+        <h2 class="subhead" style="margin-bottom:0.7rem;">Other ways</h2>
         <p class="meta">
           <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
           {SITE.hours} · {SITE.location}
@@ -113,6 +145,8 @@ import { PRODUCTS } from '../data/catalog';
     background: var(--surface-raised);
     color: var(--ink);
     width: 100%;
+    /* 0.7rem padding on a 0.95rem line measured 40px. */
+    min-height: 44px;
   }
 
   textarea {
@@ -161,6 +195,63 @@ import { PRODUCTS } from '../data/catalog';
 </style>
 
 <script>
+  /*
+   * ONE function builds the message. The preview bubble and the wa.me URL both
+   * read from it, so what the visitor is shown is by construction the thing
+   * that gets sent — which is the only property that makes the bubble worth
+   * having. Do not inline this string at either call site again.
+   */
+  function buildMessage(): string {
+    const nameEl = document.getElementById('name') as HTMLInputElement | null;
+    const pieceEl = document.getElementById('piece') as HTMLSelectElement | null;
+    const msgEl = document.getElementById('message') as HTMLTextAreaElement | null;
+
+    const name = nameEl?.value.trim() ?? '';
+    const opt = pieceEl?.selectedOptions[0];
+    const sku = pieceEl?.value ?? '';
+    const pieceName = sku ? (opt?.dataset.name ?? opt?.textContent?.trim() ?? '') : '';
+    const message = msgEl?.value.trim() ?? '';
+
+    /*
+     * The ref goes on its own line at the end, matching productMessage(). It
+     * used to sit mid-sentence, which read fine in WhatsApp but left the
+     * preview bubble showing "the Aurelia Signet Ring ." once the ref was
+     * lifted out for tinting. Same convention everywhere is also just easier
+     * for whoever is reading these on a phone all day.
+     */
+    return [
+      name ? `Hi Maison Nunu! I\u2019m ${name}.` : 'Hi Maison Nunu!',
+      pieceName ? `I\u2019d like to know more about the ${pieceName}.` : '',
+      message,
+      sku ? `(ref: ${sku})` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  /* Repaint the bubble from that same string. Mirrors MessagePreview's own
+     split so the ref keeps its tint. */
+  function paintPreview() {
+    const wrap = document.getElementById('preview');
+    if (!wrap) return;
+    const body = wrap.querySelector<HTMLElement>('[data-msg-body]');
+    const ref = wrap.querySelector<HTMLElement>('[data-msg-ref]');
+    const br = wrap.querySelector<HTMLElement>('[data-msg-br]');
+    if (!body || !ref || !br) return;
+
+    const full = buildMessage();
+    const m = full.match(/\(ref:\s*([^)]+)\)/);
+    body.textContent = m ? full.replace(m[0], '').trimEnd() : full;
+    ref.textContent = m ? `(ref: ${m[1]})` : '';
+    ref.hidden = !m;
+    br.hidden = !m;
+  }
+
+  for (const id of ['name', 'piece', 'message']) {
+    document.getElementById(id)?.addEventListener('input', paintPreview);
+  }
+  paintPreview();
+
   const form = document.getElementById('enquiry') as HTMLFormElement | null;
 
   if (form) {
@@ -238,15 +329,9 @@ import { PRODUCTS } from '../data/catalog';
         submitText.textContent = restore;
       });
 
-      const lines = [
-        `Hi Maison Nunu! I’m ${name}.`,
-        pieceName ? `I’d like to know more about the ${pieceName} (ref: ${sku}).` : '',
-        message,
-      ].filter(Boolean);
-
       // encodeURIComponent, not URLSearchParams — the latter encodes spaces
       // as "+", which WhatsApp renders literally.
-      window.location.href = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`;
+      window.location.href = `https://wa.me/${number}?text=${encodeURIComponent(buildMessage())}`;
     });
   }
 </script>
