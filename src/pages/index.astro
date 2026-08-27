@@ -46,7 +46,7 @@ import { generalLink } from '../lib/whatsapp';
         />
         <MessagePreview
           direction="in"
-          message={'Lovely choice — that one we order in, so you get to pick the stone. Shall I send photos of what’s available?'}
+          message={'Lovely choice. That one we order in, so you get to pick the stone. Shall I send photos of what’s available?'}
         />
         <MessagePreview direction="out" message={'Yes please. Do you have anything more blue?'} />
       </div>
@@ -55,8 +55,7 @@ import { generalLink } from '../lib/whatsapp';
 
   <section class="section">
     <div class="shell">
-      <span class="eyebrow">Selected pieces</span>
-      <h2 style="margin-top:0.6rem;">This season</h2>
+      <h2>This season</h2>
       {/*
         One featured piece per collection, not every flagged piece.
 
@@ -83,8 +82,7 @@ import { generalLink } from '../lib/whatsapp';
 
   <section class="section">
     <div class="shell">
-      <span class="eyebrow">By category</span>
-      <h2 style="margin-top:0.6rem;">Find your thing</h2>
+      <h2>Find your thing</h2>
       {/*
         Image tiles rather than a row of text links. Eight words told a visitor
         the collections existed; eight photographs tell them what is in each one,
@@ -128,8 +126,7 @@ import { generalLink } from '../lib/whatsapp';
   -->
   <section class="section">
     <div class="shell">
-      <span class="eyebrow">How it works</span>
-      <h2 style="margin-top:0.6rem;">No checkout, on purpose.</h2>
+      <h2>No checkout, on purpose.</h2>
       <ol class="steps">
         <li class="reveal">
           <h3>Find a piece</h3>
@@ -152,14 +149,24 @@ import { generalLink } from '../lib/whatsapp';
     </div>
   </section>
 
+  {/*
+    `measure` sits INSIDE `shell` rather than beside it. Both set max-width, and
+    `shell` also sets `margin-inline: auto` — so `class="shell measure"` narrows
+    the box to 62ch and then centres that box in the viewport. On the text-only
+    pages that reads as a deliberate reading column, but here it made this one
+    section drift to the middle while the four above it start at the shell's
+    left edge. Nesting keeps the measure and restores the alignment.
+  */}
   <section class="section">
-    <div class="shell measure">
-      <h2 style="margin-bottom:var(--s-3);">Chosen, not stocked.</h2>
-      <p style="margin-bottom:var(--s-4);">
-        We buy in small quantities from makers we rate, so the selection stays short enough that we
-        know every piece on it. Ask us anything about one before you commit.
-      </p>
-      <WhatsAppCTA href={generalLink()} label="Start a conversation" />
+    <div class="shell">
+      <div class="measure">
+        <h2 style="margin-bottom:var(--s-3);">Chosen, not stocked.</h2>
+        <p style="margin-bottom:var(--s-4);">
+          We buy in small quantities from makers we rate, so the selection stays short enough that
+          we know every piece on it. Ask us anything about one before you commit.
+        </p>
+        <WhatsAppCTA href={generalLink()} label="Message us" />
+      </div>
     </div>
   </section>
 </Base>

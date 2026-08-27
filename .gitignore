@@ -30,6 +30,9 @@ pnpm-debug.log*
 # agent tooling (local only — not part of the client deliverable)
 .agents/
 .claude/
+.codex/
+.cursor/
+.grok/
 skills-lock.json
 
 # ---------------------------------------------------------------------------

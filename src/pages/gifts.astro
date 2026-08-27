@@ -26,9 +26,9 @@ import { SITE } from '../config/site';
 const BANDS = [
   { id: 'under-75', label: 'Under 75 000', min: 0, max: 75000,
     blurb: 'Studs, fine bands, raffia and the everyday pieces.' },
-  { id: 'under-120', label: '75 000 – 120 000', min: 75000, max: 120000,
-    blurb: 'Hoops, chains, cuffs and sunglasses — the usual gift range.' },
-  { id: 'under-200', label: '120 000 – 200 000', min: 120000, max: 200000,
+  { id: 'under-120', label: '75 000 - 120 000', min: 75000, max: 120000,
+    blurb: 'Hoops, chains, cuffs and sunglasses. The usual gift range.' },
+  { id: 'under-200', label: '120 000 - 200 000', min: 120000, max: 200000,
     blurb: 'Pendants, brooches and the lighter watches.' },
   { id: 'over-200', label: '200 000 and above', min: 200000, max: Infinity,
     blurb: 'Stone-set rings, chronographs and the pieces bought once.' },
@@ -57,7 +57,7 @@ const picks = PRODUCTS.filter((p) => {
       <span class="eyebrow">Gifts</span>
       <h1 style="margin-top:0.5rem;">Buying for someone else?</h1>
       <p class="lede" style="margin-top:1rem; max-width:58ch;">
-        Start with what you want to spend — it’s the one thing you already know. We’ll help with the
+        Start with what you want to spend. It’s the one thing you already know. We’ll help with the
         rest, including the part nobody knows, which is their size.
       </p>
 
@@ -75,10 +75,9 @@ const picks = PRODUCTS.filter((p) => {
       </div>
 
       <div style="margin-top:3rem;">
-        <span class="eyebrow">Safe bets</span>
-        <h2 style="margin-top:0.6rem; margin-bottom:0.5rem;">Hard to get wrong</h2>
+        <h2 style="margin-bottom:0.5rem;">Hard to get wrong</h2>
         <p style="margin-bottom:var(--s-4); color:var(--muted); max-width:56ch;">
-          Pieces with no size to guess — which is what makes them the ones to choose when you aren’t
+          Pieces with no size to guess, which is what makes them the ones to choose when you aren’t
           certain.
         </p>
         <div class="grid">
@@ -90,7 +89,7 @@ const picks = PRODUCTS.filter((p) => {
         <h3 style="margin-bottom:0.6rem;">Don’t know their size?</h3>
         <p style="margin-bottom:1.2rem; color:var(--muted);">
           Most people don’t. Tell us who it’s for and roughly what you’d like to spend, and we’ll
-          suggest two or three things — starting with pieces that don’t need a size at all.
+          suggest two or three things, starting with pieces that don’t need a size at all.
         </p>
         <WhatsAppCTA href={generalLink()} label="Ask for a suggestion" />
         <p class="meta" style="margin-top:1rem;">

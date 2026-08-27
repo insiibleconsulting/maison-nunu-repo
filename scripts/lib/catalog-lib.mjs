@@ -56,27 +56,7 @@ export const CATEGORY_TO_PREFIX = Object.fromEntries(
   Object.entries(PREFIX_TO_CATEGORY).map(([prefix, category]) => [category, prefix]),
 );
 
-/**
- * `RNG-04`, and also `RNG-SAMPLE-01`.
- *
- * The optional word segment exists so a row can be marked as scratch work in
- * the one place that cannot be faked: the photo filename. Because
- * `photoFilename()` derives the name from the SKU, `RNG-SAMPLE-01` lands on
- * disk as `rng-sample-01.jpg` — so a glance at public/products/ separates
- * throwaway test shots from real catalogue photography, with no second field to
- * keep in sync.
- *
- * Two behaviours fall out of this for free, both wanted:
- *   - `categoryOf()` reads `sku.slice(0, 3)`, so a sample still resolves to its
- *     real collection and renders in the right place.
- *   - `nextSku()` reads `Number(sku.slice(4))`, which is NaN for a word segment
- *     and therefore ignored. Samples never consume a permanent number, so
- *     deleting them frees nothing and burns nothing (CLAUDE.md § 6).
- *
- * Samples are still ordinary rows: `catalog:check` validates them like any
- * other, and a `draft` status still hides them from the site.
- */
-export const SKU_PATTERN = /^[A-Z]{3}-(?:[A-Z]+-)?\d{2,}$/;
+export const SKU_PATTERN = /^[A-Z]{3}-\d{2,}$/;
 
 /**
  * Row lifecycle. `draft` is the important one: it lets a photo enter the repo

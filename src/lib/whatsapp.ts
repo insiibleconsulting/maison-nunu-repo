@@ -42,5 +42,5 @@ export function generalLink(): string | null {
 
 /** Message for the "not sure what I want" enquiry on the contact page. */
 export function stylingMessage(): string {
-  return `Hi ${SITE.brand}! I’d like some help choosing a piece — could you advise?`;
+  return `Hi ${SITE.brand}! I’d like some help choosing a piece. Could you advise?`;
 }

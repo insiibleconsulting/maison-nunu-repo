@@ -49,14 +49,14 @@ export const SITE = {
    * customer can hold you to.
    */
   description:
-    'A chosen selection of jewelry and accessories, brought together piece by piece. Everything here is one conversation away — message us and we will help you choose.',
+    'A chosen selection of jewelry and accessories, brought together piece by piece. Everything here is one conversation away. Message us and we will help you choose.',
 
   /** Shown on the contact page and in the footer. Placeholder until confirmed. */
   email: 'hello@maisonnunu.com',
   location: 'By appointment',
 
   /** Business hours copy, mirrored in the WhatsApp Business away message. */
-  hours: 'Mon–Fri, 9am – 5pm',
+  hours: 'Mon-Fri, 9am - 5pm',
 
   social: {
     instagram: '', // e.g. 'https://instagram.com/maisonnunu'

@@ -64,10 +64,11 @@
   --brass-soft: rgba(117, 84, 23, 0.11);
 
   /* ---- brand guide palette (client style guide, Aug 2026; see CLAUDE.md) ---
-     CURRENTLY UNUSED. The footer was built on --midnight for a while and the
-     user reverted it to the oyster ground, so nothing references these today.
-     They are kept, with the arithmetic, because the constraint they encode is
-     the non-obvious part and it will be needed by anyone who tries this again.
+     CURRENTLY UNUSED. Two attempts have been made and both reverted at the
+     user's request: a midnight-blue footer, and midnight as the primary CTA
+     colour. They are kept, with the arithmetic, because the constraint they
+     encode is the non-obvious part and it will be needed by anyone who tries
+     this again.
 
      The guide's own gold is #c89a6a and it is UNUSABLE as text on any light
      ground — 2.06:1 on --oyster, below even the 3:1 bar for interface elements.
@@ -141,6 +142,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -260,6 +262,27 @@ h1 {
 
 h2 {
   font-size: clamp(1.85rem, 4vw, 2.75rem);
+}
+
+/* Headings reset to margin:0, so a paragraph directly after one sits flush
+   against it. Most places dodge this by carrying an inline margin on one side
+   or the other, but that is a convention nobody can see, and twice on /guide/
+   it was simply forgotten: the sub-line under "Materials, and how to keep
+   them" and the one under "Pieces marked 'ordered in'" both collided with the
+   heading above.
+
+   Declared here rather than patched inline so the next heading added to a
+   prose page is spaced without anyone remembering to do it. Safe against the
+   existing inline values because adjacent siblings collapse margins and the
+   larger wins: a heading already carrying margin-bottom: 1.2rem keeps 1.2rem.
+   h3 is left out on purpose; it sets its own tighter spacing where used, and
+   its smaller type does not need this much room.
+
+   Flex containers do not collapse margins, so this deliberately does not reach
+   the hero copy or the product detail column. Both are flex and already spaced
+   by `gap`; adding a margin there would stack on top of the gap. */
+:is(h1, h2) + p {
+  margin-top: var(--s-3);
 }
 
 h3 {
@@ -841,7 +864,7 @@ p {
   border: 1px solid rgba(117, 84, 23, 0.32);
   color: var(--brass);
   padding: 0.22rem 0.5rem;
-  border-radius: 2px;
+  border-radius: var(--radius);
   backdrop-filter: blur(6px);
 }
 
@@ -974,7 +997,20 @@ p {
   margin-top: var(--s-4);
   display: grid;
   gap: clamp(0.7rem, 1.6vw, 1.1rem);
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  /* Fixed column counts, not auto-fill. There are exactly eight collections
+     and that number is fixed by the client (invariant 5b), so the grid can be
+     cut to divide it evenly: 4+4 at desktop, 3+3+2 is never reached, 2x4 on
+     narrow. auto-fill picked five columns at ~1200px and left the second row
+     three tiles wide with two dead slots beside it, which read as a loading
+     failure rather than as a layout. If the eight ever becomes a nine, this
+     wants revisiting, not reverting to auto-fill. */
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 560px) {
+  .cat-tiles {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .cat-tile {
@@ -1182,10 +1218,20 @@ p {
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* Three steps, so the grid is one column or three, never two. auto-fit found
+     room for two columns around 520px and left step 3 alone on a second row
+     with a dead slot beside it — which also broke the 1-2-3 reading order the
+     numbering depends on. A sequence either reads across or it reads down. */
+  grid-template-columns: 1fr;
   gap: clamp(var(--s-4), 3vw, var(--s-5));
   margin-top: var(--s-5);
   counter-reset: step;
+}
+
+@media (min-width: 760px) {
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .steps li {
@@ -1358,6 +1404,14 @@ p {
   padding-top: var(--s-3);
   font-size: 0.78rem;
   color: var(--faint);
+  /* Two ends of one rule rather than one run of text broken by bullets: the
+     copyright reads left, the build credit reads right, and the second "·"
+     that used to join them is no longer doing any work. Wraps to a stack
+     under 560px so neither end gets squeezed. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4rem var(--s-4);
 }
 
 /* The build credit is the only footer link carrying the accent colour.

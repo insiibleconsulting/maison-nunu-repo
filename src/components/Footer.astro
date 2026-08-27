@@ -57,19 +57,21 @@ const year = new Date().getFullYear();
       An explicit expression is immune to that collapsing.
     */}
     <div class="site-footer__legal">
-      © {year} {SITE.brand}. All rights reserved.
-      {' · '}<a href="/privacy/">Privacy</a>
+      <span>
+        © {year} {SITE.brand}. All rights reserved.
+        {' · '}<a href="/privacy/">Privacy</a>
+      </span>
       {/*
         Build credit. The only outbound link on the site, so it carries the same
         rel as the WhatsApp CTAs — noopener stops the opened tab reaching back
         through window.opener, noreferrer withholds the referrer header.
       */}
-      {' · '}Powered by{' '}
+      <span>Powered by{' '}
       <a
         class="site-footer__credit"
         href="https://insiibleconsulting.com/"
         target="_blank"
-        rel="noopener noreferrer">Insiible Consulting</a>
+        rel="noopener noreferrer">Insiible Consulting</a></span>
     </div>
   </div>
 </footer>
