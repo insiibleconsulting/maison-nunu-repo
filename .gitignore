@@ -33,6 +33,7 @@ pnpm-debug.log*
 .codex/
 .cursor/
 .grok/
+.impeccable/
 skills-lock.json
 
 # ---------------------------------------------------------------------------
