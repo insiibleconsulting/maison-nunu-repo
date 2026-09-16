@@ -38,7 +38,7 @@ Built and verified:
 
 ### Second session, 31 July 2026 — what changed
 
-- **Real WhatsApp number received:** `+237 6 79 47 18 81` -> `237679471881`. It lives in a
+- **Real WhatsApp number received:** `+237 6 71 73 52 66` -> `237671735266`. It lives in a
   gitignored `.env` for local work and is **not** in any tracked file. Cloudflare Pages still needs
   it set separately.
 - **Eight real collections confirmed by the client** and wired in — see "Collections" below.
@@ -545,7 +545,7 @@ confirmed on real Cloudflare.
 | Architecture, code, design | **Real.** Built and verified. |
 | Positioning | **Real, and reversed 14 Aug 2026.** Maison Nunu *resells*; it does not manufacture. See invariant 5c. |
 | Brand identity / logo | **Real.** Client-supplied lockups in `assets/Final logo/`, deployed as `public/brand/*`. |
-| WhatsApp number | **Real** — `237679471881`. In gitignored `.env` only; still to be set in Cloudflare Pages. |
+| WhatsApp number | **Real** — `237671735266`. In gitignored `.env` only; still to be set in Cloudflare Pages. |
 | The eight collections | **Real.** Confirmed by the client 31 July 2026. |
 | All 65 products, prices, descriptions | **Invented.** Plausible but fictional. Every row in `data/products.csv` is `status: placeholder`; `npm run catalog:check` prints the remaining count on every run. |
 | Product photography | **Unsplash stock, demo only.** See below. |
