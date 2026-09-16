@@ -56,7 +56,7 @@ export const SITE = {
   location: 'By appointment',
 
   /** Business hours copy, mirrored in the WhatsApp Business away message. */
-  hours: 'Mon-Fri, 9am - 5pm',
+  hours: 'Every day, 7am - 7pm',
 
   social: {
     instagram: '', // e.g. 'https://instagram.com/maisonnunu'

@@ -30,7 +30,7 @@ Set to outside business hours. **The hours must match `SITE.hours` and the Whats
 
 ```
 Thanks for your message. We’re away right now and will reply
-when we open, Mon to Fri, 9am to 5pm.
+when we open, every day, 7am to 7pm.
 
 If it’s about a specific piece, send the ref code (for example
 RNG-01) and it’ll be waiting for you.

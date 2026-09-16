@@ -54,8 +54,9 @@ hesitation in a WhatsApp jewelry sale, and a clear answer converts.
 **Why it matters:** `SITE.email`, `SITE.location` and `SITE.hours` are still generic placeholders,
 and `hours` has to match the WhatsApp profile and away message exactly.
 
-*Answer:*
-*Date:*
+*Answer (partial):* **Hours confirmed — Mon to Sun, 7am to 7pm.** Set in `SITE.hours` and mirrored
+in the WhatsApp away message. Trading name, address and published email are still outstanding.
+*Date: 16 September 2026*
 
 ### 5. Language
 
