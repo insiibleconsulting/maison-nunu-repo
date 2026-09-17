@@ -1884,3 +1884,144 @@ p {
     transform: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   CUSTOMER GALLERY  (/gallery/)
+   ---------------------------------------------------------------------------
+   Reuses the shop grid's measurements so the two pages feel like one site, but
+   the tile is a <figure> rather than a product card: no price, no CTA, and the
+   only link is to the piece in the photograph.
+
+   Every colour below is an existing token. Nothing new was introduced, so the
+   contrast table in CLAUDE.md still covers this page unchanged.
+   --------------------------------------------------------------------------- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: clamp(var(--s-4), 3vw, var(--s-5));
+  margin-top: var(--s-5);
+  padding: 0;
+  list-style: none;
+}
+
+.gallery__figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  height: 100%;
+  margin: 0;
+}
+
+/* Same 4/5 frame as the product cards. Customer photographs arrive from phones
+   at every ratio, so this crops rather than letterboxes — a letterboxed grid of
+   mixed ratios is what makes a gallery read as a folder of pictures. */
+.gallery__frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.gallery__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.4rem;
+  /* figcaption is not a flex item by default in every engine */
+  min-width: 0;
+}
+
+.gallery__quote {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.gallery__quote::before {
+  content: '\201C';
+}
+
+.gallery__quote::after {
+  content: '\201D';
+}
+
+.gallery__who {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.gallery__city {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.gallery__city::before {
+  content: '\00B7';
+  margin-right: 0.5rem;
+}
+
+/* Pushed to the foot of the tile so the links align across a row whatever the
+   quotes do above them. */
+.gallery__piece {
+  margin-top: auto;
+  font-size: 0.82rem;
+  color: var(--burgundy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-interactive);
+  padding-bottom: 2px;
+  align-self: flex-start;
+}
+
+.gallery__piece:hover {
+  color: var(--burgundy-deep);
+  border-bottom-color: currentColor;
+}
+
+/* The page before its first entry. Deliberately not a grid of placeholders. */
+.gallery-empty {
+  margin-top: var(--s-5);
+  padding: clamp(var(--s-4), 5vw, var(--s-6));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  max-width: 54ch;
+}
+
+.gallery-empty__lead {
+  margin: 0 0 0.8rem;
+  font-family: var(--display);
+  font-size: 1.3rem;
+  color: var(--ink);
+}
+
+.gallery-empty p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.gallery-cta {
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  max-width: 54ch;
+}
+
+.gallery-cta p {
+  color: var(--muted);
+  margin: 0.6rem 0 var(--s-4);
+}

@@ -192,6 +192,27 @@ if you’d like it. No rush either way.
 costs referrals. If it gets nothing, leave the thread labeled `Sent details` and move on. People
 come back months later.
 
+### Asking to use a photo on the gallery page
+
+Send this only after they have sent a photo, never as a request out of nowhere.
+
+```
+This is lovely, thank you. Would you mind if we put it on the
+gallery page on our site?
+
+We'd show your first name only, no surname and no number, and
+you can ask us to take it down any time.
+```
+
+**Wait for a clear yes in writing, in the chat.** A photo sent to you is not
+permission to publish it. "Sure" and "yes go ahead" are fine; silence, a thumbs
+up on a different message, or "maybe later" are not. The site holds the photo
+back until the sheet says `yes`, so there is no way to publish one by accident,
+and no reason to rush the answer.
+
+If they say no, say thank you and drop it. It costs nothing and asking twice
+costs a referral.
+
 ### After the sale
 
 ```

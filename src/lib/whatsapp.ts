@@ -40,6 +40,11 @@ export function generalLink(): string | null {
   return waLink(GENERAL_ENQUIRY);
 }
 
+/** Message a customer sends when offering a photo for /gallery/. */
+export function galleryMessage(): string {
+  return `Hi ${SITE.brand}! I’d like to share a photo of a piece I bought from you.`;
+}
+
 /** Message for the "not sure what I want" enquiry on the contact page. */
 export function stylingMessage(): string {
   return `Hi ${SITE.brand}! I’d like some help choosing a piece. Could you advise?`;

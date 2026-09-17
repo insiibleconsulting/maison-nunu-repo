@@ -1,0 +1,106 @@
+---
+/**
+ * Customer gallery — photographs of real pieces, worn by the people who bought
+ * them.
+ *
+ * Why this page earns its place on a site with no checkout: Maison Nunu resells.
+ * Anyone can open a jewelry page and post product shots, and a visitor deciding
+ * whether to send 145 000 FCFA to a WhatsApp number they do not know is not
+ * weighing the piece, they are weighing the shop. A photograph of a named
+ * customer holding a real order is the only thing on this site that answers
+ * that, and it is the one kind of content a competitor cannot copy.
+ *
+ * EVERY ROW HERE IS A REAL PERSON. `src/lib/gallery.ts` fails closed: no
+ * recorded consent, no photograph, or an unknown ref code and the row does not
+ * render. Read the comment at the top of that file before changing anything
+ * here, and never add a row to bulk the page out.
+ */
+import Base from '../layouts/Base.astro';
+import WhatsAppCTA from '../components/WhatsAppCTA.astro';
+import { waLink, galleryMessage } from '../lib/whatsapp';
+import { GALLERY } from '../lib/gallery';
+
+---
+
+<Base
+  title="Gallery"
+  description="Pieces from Maison Nunu, worn by the people who bought them. Shared with their permission."
+>
+  <section class="section">
+    <div class="shell">
+      <p class="eyebrow">Gallery</p>
+      <h1 class="display">Worn, not staged</h1>
+      <p class="lede">
+        Pieces that have found their person. Every photograph here was taken by the customer
+        and shared with their permission, and every one links to the piece in it.
+      </p>
+
+      {
+        GALLERY.length > 0 ? (
+          <ul class="gallery" role="list">
+            {GALLERY.map((entry) => (
+              <li class="gallery__item">
+                <figure class="gallery__figure">
+                  <div class="gallery__frame">
+                    {/*
+                      Customer photographs arrive from phones at every ratio, so
+                      the frame crops rather than letterboxes. `loading="lazy"`
+                      throughout: unlike a product page there is no hero here,
+                      and a good deal of this audience is on metered data.
+                    */}
+                    <img
+                      src={entry.image}
+                      alt={`${entry.name} wearing the ${entry.productName}`}
+                      width="800"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <figcaption class="gallery__body">
+                    {entry.quote && <p class="gallery__quote">{entry.quote}</p>}
+                    <p class="gallery__who">
+                      {/* First name only. Never a surname, never a phone number. */}
+                      {entry.name}
+                      {entry.city && <span class="gallery__city">{entry.city}</span>}
+                    </p>
+                    <a class="gallery__piece" href={`/shop/${entry.productSlug}/`}>
+                      Wearing the {entry.productName}
+                    </a>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          /*
+           * Honest empty state. There are no invented customers and no stock
+           * photographs standing in for them: a fabricated testimonial is a
+           * lie a customer can hold the business to, and it is the exact thing
+           * this page exists to be the opposite of. It reads as a real page
+           * waiting for its first entry, which is what it is.
+           */
+          <div class="gallery-empty">
+            <p class="gallery-empty__lead">
+              This page is waiting for its first photograph.
+            </p>
+            <p>
+              We would rather show nothing than show something staged. If you have bought a
+              piece from us, send us a photo of you wearing it and we will ask before it goes
+              anywhere.
+            </p>
+          </div>
+        )
+      }
+
+      <div class="gallery-cta">
+        <h2 class="subhead">Bought something from us?</h2>
+        <p>
+          Send us a photo on WhatsApp. We always ask before posting, we only ever use a first
+          name, and you can ask us to take it down at any time.
+        </p>
+        <WhatsAppCTA href={waLink(galleryMessage())} label="Share a photo" sku="ENQUIRY" />
+      </div>
+    </div>
+  </section>
+</Base>

@@ -22,6 +22,21 @@ wait.
 stranger. Ask every buyer for permission to post the handover photo, and post it. One real customer
 outperforms ten product tiles.
 
+**Pillar 3 now has a page of its own.** `/gallery/` on the website shows customer photos, and
+every tile links to the piece in it. The loop, once per happy customer:
+
+1. After the handover, ask for a photo (see the after-sale script).
+2. When one arrives, ask permission with the consent script. Wait for a written yes.
+3. Save the photo as `public/gallery/<id>.jpg`, 800 × 1000, under 250 KB.
+4. Add a row to `data/gallery.csv` with the same `id`, their **first name only**, the city, the
+   ref code, an optional line in their words, the date, and `consent` set to exactly `yes`.
+5. Rebuild. Anything missing consent, a photo, or a valid ref code is held back automatically
+   and named in the build log.
+
+The page renders an honest empty state until the first real entry. **Never add a row for a
+customer who has not said yes, and never invent one to fill the grid** — a fabricated
+testimonial is the one thing that would undo everything this pillar is for.
+
 **Pillar 5 is the moat.** A reseller's whole case is "my taste is worth trusting." That case cannot
 be made by product photos alone. The client's face and voice, even occasionally, is what separates
 this from the hundred other jewelry pages.
