@@ -103,7 +103,7 @@ import MessagePreview from '../components/MessagePreview.astro';
         <h2 class="subhead" style="margin-bottom:0.7rem;">Other ways</h2>
         <p class="meta">
           <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
-          {SITE.hours} · {SITE.location}
+          {SITE.hours}{SITE.location ? ` · ${SITE.location}` : ''}
         </p>
       </div>
     </div>

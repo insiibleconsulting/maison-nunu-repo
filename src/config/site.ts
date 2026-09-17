@@ -53,10 +53,19 @@ export const SITE = {
 
   /** Shown on the contact page and in the footer. Confirmed by the client. */
   email: 'info@maisonnunu.com',
-  location: 'By appointment',
+
+  /*
+   * Deliberately EMPTY. An empty string renders nothing; the contact page
+   * drops its separator with it. Do not put a plausible stand-in here ("By
+   * appointment", a city) to fill the gap -- an invented trading location is
+   * the same class of promise-shaped claim COMMERCE guards against. A real
+   * address goes here when the client confirms one (09-open-questions, Q4)
+   * and it appears automatically, no template edit needed.
+   */
+  location: '',
 
   /** Business hours copy, mirrored in the WhatsApp Business away message. */
-  hours: 'Every day, 7am - 7pm',
+  hours: 'Mon-Sun, 7am - 7pm',
 
   social: {
     instagram: '', // e.g. 'https://instagram.com/maisonnunu'

@@ -54,7 +54,7 @@ Set it to outside business hours, matching the profile hours.
 
 ```
 Thanks for your message. We're away right now and will reply
-when we open, every day, 7am to 7pm.
+when we open, Mon to Sun, 7am to 7pm.
 
 If it's about a specific piece, send the ref code (for example
 RNG-01) and it'll be waiting for you.
